@@ -3,7 +3,12 @@ Entrypoint for our management portal
 Author: Team SoftCom
 """
 from flask import Flask, render_template, request, redirect
+from flask_sqlalchemy import SQLAlchemy
+from lib.models import *
+
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+db = SQLAlchemy(app)
 
 # Competitions are stored as object of this class
 class CompetitionObj:
@@ -55,6 +60,8 @@ def delete_competition():
         del Competition[key_to_delete]
     return redirect('/dashboard')
 
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)

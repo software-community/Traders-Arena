@@ -12,6 +12,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 db = SQLAlchemy(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Storing team details
+team = []
+
 class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     team = db.Column(db.String(80), nullable=False)
@@ -99,6 +102,31 @@ def delete_stock(stock_id):
     db.session.delete(stock)
     db.session.commit()
     return redirect(url_for('stocksIssue'))
+
+
+
+# Page for adding the teams (Shivang)
+@app.route('/addTeam', methods=["GET", "POST"])
+def addTeam():
+    if request.method == "POST":
+        newTeam = {
+            "teamName": request.form["teamName"],
+            "teamMembers": request.form["teamMembers"], 
+        }
+        if newTeam not in team:
+            team.append(newTeam)
+            print(team)
+        return redirect(url_for('addTeam')) 
+    return render_template("addTeam.html", teams=team)
+
+# Removing the teams (Shivang)
+@app.route('/removeTeam', methods=['POST'])
+def removeTeam():
+    teamName = request.form['teamName']
+    global team
+    team = [t for t in team if t['teamName'] != teamName]
+    print(f"After removal: {team}")  
+    return redirect(url_for('addTeam'))
 
 
 with app.app_context():

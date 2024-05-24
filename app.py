@@ -14,6 +14,10 @@ db = SQLAlchemy(app)
 def home():
     return render_template('index.html')
 
+@app.route('/stockNews')
+def stockNews():
+    return render_template('stockNews.html')
+
 with app.app_context():
     db.create_all()
 

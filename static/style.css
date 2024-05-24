@@ -1,0 +1,132 @@
+body
+{
+    background-color: #111827 !important;
+    color:white !important;
+    font-family: "Plus Jakarta Sans", sans-serif  !important;
+}
+
+.formpage
+{
+    background-color: #000;
+    width:50%;
+    min-width:350px;
+    border-radius: 1rem;
+    left:7%;
+    box-shadow: 10px 10px 20px  black;
+}
+
+.main
+{
+    display:flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items:center;
+}
+
+#addEvent
+{
+    background-color:#23c55e;
+    color:white;
+    font-weight: 500;
+}
+#addEvent:hover
+{
+    border:1px solid white;
+    color:black;
+}
+
+
+input, textarea
+{
+    color:  white !important;
+    background-color:#13132e !important;
+}
+
+label
+{
+    font-weight: 550;
+}
+
+.EventStyle
+{
+    display:flex !important;
+    justify-content: space-between !important;
+    background-color: #11274B;
+    width:70%;
+    min-width:350px;
+    border-radius: 1rem;
+    border:2px solid white;
+    left:7%;
+    margin-bottom: 2rem;
+    box-shadow: 10px 10px 20px black ;
+}
+
+
+
+#Event
+{
+    display:flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items:center;
+    margin-top: 1rem;
+}
+
+.EventContentStyle
+{
+    margin-top: 10px;
+    color:white;
+}
+
+.EventHeading
+{
+    color:#00FFFF;
+    text-decoration: underline black;
+    padding: 1.5rem 1rem;
+}
+
+.EventRound
+{
+    font-size: 1.5rem;
+}
+
+.EventImage
+{
+   width:90%;
+   padding-top: 1.5rem;
+   padding-bottom: 1.5rem;
+   border-radius: 3rem;
+   height: 100%;
+}
+
+
+.EventDelete
+{
+    background-color: #212529 !important;
+    color:white !important;
+    width:10rem;
+}
+.EventDelete:hover
+{
+    border:2px solid white !important;
+}
+
+.eventFooter
+{
+    display:flex;
+    justify-content: space-between;
+    padding: 7rem 1rem 0 0 ;
+}
+
+
+.imageDiv
+{
+    display:flex;
+    justify-content: center;
+}
+
+.EventDetailDiv
+{
+    width:130%;
+    padding-right: 2rem;
+}

@@ -16,6 +16,16 @@ body {
     border-radius: 8px;
 }
 
+.history-container {
+    width: 70%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #1f1f38; /* Darker container background */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    margin-top: 50px;
+    border-radius: 8px;
+}
+
 h1, h2 {
     text-align: center;
     color: #dcdcdc; /* Light grey */
@@ -81,6 +91,8 @@ table {
     border-collapse: collapse;
     margin-top: 20px;
     color: #dcdcdc; /* Light grey text */
+    table-layout: fixed; /* Ensures the table layout doesn't change */
+    word-wrap: break-word; /* Wraps words to fit the cell */
 }
 
 th, td {

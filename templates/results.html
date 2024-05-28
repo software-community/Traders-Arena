@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Results</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <style>
+      /* each team's inital card */
+      .card {
+        width: calc(22% - 1rem);
+      }
+      /* top 3 team's result card */
+      .results-card {
+        width: calc(31.5% - 1rem);
+        position: relative;
+      }
+      /* for positioning 1st,2nd and 3rd on result cards */
+      .badge {
+        position: absolute;
+        top: -15%;
+        left: -20%;
+        transform: translate(25%, 25%);
+        width: 6rem;
+        height: 6rem;
+      }
+    </style>
+    <!-- js for celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <!-- js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- script for generating all the charts -->
+    <script
+      src="{{ url_for('static', filename='line_chart.js')}}"
+      defer
+    ></script>
+
+    <!-- script for handling all result display related operations -->
+    <script src="{{ url_for('static', filename='results.js')}}" defer></script>
+
+    <!-- passing parameters to the function in js responsible for charts-->
+    <script>
+      // all flask paramters are passed to js
+        window.onload = function() {
+            initFunction(
+                {{ portfolio | tojson }},
+                {{ cash | tojson }},
+                {{ rankings | tojson }},
+                {{ numberOfRounds }}
+            );
+        };
+    </script>
+  </head>
+  <body class="bg-gray-900 text-white font-sans">
+    <div class="min-h-screen flex flex-wrap justify-center">
+      <div class="h-1/6 w-full flex justify-center items-center">
+        <h1 class="text-4xl font-bold text-center mt-8 mb-4">
+          Competition Results
+        </h1>
+      </div>
+
+      <!-- Inital display for all cards -->
+      <div id="cardsContainer" class="flex flex-wrap justify-center">
+        <br />
+        {% for name, value in portfolio.items() %}
+        <div
+          class="card bg-gray-800 border border-gray-700 rounded-lg p-6 m-4 text-center"
+        >
+          <h2>{{ name }}</h2>
+          <h1 class="text-2xl font-bold mt-2">&#x20b9; {{ value|last }}</h1>
+          <div
+            id="card {{ name }}"
+            class="flex justify-center items-center h-56 w-64"
+          ></div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Button that leads to final result -->
+      <button
+        id="results"
+        class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-full shadow-lg z-50"
+        onclick="results()"
+      >
+        Final Results
+      </button>
+
+      <!-- Result display for top 3 cards -->
+      <!-- Python itself figures out top 3 teams and sends their data via flask-->
+      <div class="h-4/6 w-full flex justify-center items-center">
+        <div
+          id="resultsContainer"
+          class="flex flex-wrap justify-center hidden opacity-0"
+        >
+          {% for name, value in rankings.items() %}
+          <div
+            class="results-card bg-gray-800 border border-gray-700 rounded-xl p-6 m-4 text-center mr-4"
+          >
+            <img
+              src="{{ url_for('static', filename= 'rankings/' ~ loop.index ~ '.png') }}"
+              alt="{{ loop.index }} Badge"
+              class="badge"
+            />
+            <h2>{{ name }}</h2>
+            <h1 class="text-2xl font-bold mt-2">&#x20b9; {{ value|last }}</h1>
+            <div
+              id="result {{ name }}"
+              class="flex justify-center items-center h-56 w-64"
+            >
+              <canvas
+                class="chart-canvas w-full h-full"
+                height="160"
+                style="
+                  display: block;
+                  box-sizing: border-box;
+                  height: 128px;
+                  width: 256px;
+                "
+                width="320"
+              ></canvas>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

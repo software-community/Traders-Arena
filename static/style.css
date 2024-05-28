@@ -31,7 +31,6 @@ body {
   color: black;
 }
 
-
 input,
 textarea {
   color: white !important;
@@ -45,7 +44,7 @@ label {
 .EventStyle {
   display: flex !important;
   justify-content: space-between !important;
-  background-color: #11274B;
+  background-color: #11274b;
   width: 70%;
   min-width: 350px;
   border-radius: 1rem;
@@ -54,8 +53,6 @@ label {
   margin-bottom: 2rem;
   box-shadow: 10px 10px 20px black;
 }
-
-
 
 #Event {
   display: flex;
@@ -71,7 +68,7 @@ label {
 }
 
 .EventHeading {
-  color: #00FFFF;
+  color: #00ffff;
   text-decoration: underline black;
   padding: 1.5rem 1rem;
 }
@@ -88,7 +85,6 @@ label {
   height: 100%;
 }
 
-
 .EventDelete {
   background-color: #212529 !important;
   color: white !important;
@@ -104,7 +100,6 @@ label {
   justify-content: space-between;
   padding: 7rem 1rem 0 0;
 }
-
 
 .imageDiv {
   display: flex;

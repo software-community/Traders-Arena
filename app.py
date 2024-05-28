@@ -2,25 +2,28 @@
 Entrypoint for our management portal
 Author: Team SoftCom
 """
+
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from lib.models import *
 from datetime import datetime
+import random
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 db = SQLAlchemy(app)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Storing team details
 team = []
+
 
 class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     team = db.Column(db.String(80), nullable=False)
     stock = db.Column(db.String(80), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
-    timeIssued = db.Column(db.DateTime, default = datetime.utcnow)
+    timeIssued = db.Column(db.DateTime, default=datetime.utcnow)
     
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -30,7 +33,6 @@ class Transaction(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
     timeOfTransaction = db.Column(db.DateTime, default=datetime.utcnow)
-
 
 
 # Competitions are stored as object of this class
@@ -91,15 +93,24 @@ def delete_competition():
 @app.route('/initialBuying', methods=["GET", "POST"])
 def stocksIssue():
     if request.method == "POST":
-        team = request.form['team']
-        stock = request.form['stock']
-        quantity = request.form['quantity']
+        team = request.form["team"]
+        stock = request.form["stock"]
+        quantity = request.form["quantity"]
         new_stock = Stock(team=team, stock=stock, quantity=quantity)
         db.session.add(new_stock)
         db.session.commit()
-        return redirect(url_for('stocksIssue'))
-    stocks = Stock.query.order_by(Stock.id.desc()).all()  # Order by id in descending order
-    return render_template('initialBuying.html', stocks=stocks)
+        return redirect(url_for("stocksIssue"))
+    stocks = Stock.query.order_by(
+        Stock.id.desc()
+    ).all()  # Order by id in descending order
+    return render_template("initialBuying.html", stocks=stocks)
+
+
+@app.route("/stock/<int:stock_id>")
+def stock_detail(stock_id):
+    stock = Stock.query.get_or_404(stock_id)
+    return render_template("stock_detail.html", stock=stock)
+
 
 # To delete issued stock history
 @app.route('/delete_stock/<int:stock_id>', methods=["POST"])
@@ -107,7 +118,7 @@ def delete_stock(stock_id):
     stock = Stock.query.get_or_404(stock_id)
     db.session.delete(stock)
     db.session.commit()
-    return redirect(url_for('stocksIssue'))
+    return redirect(url_for("stocksIssue"))
 
 # Trading Page
 @app.route('/tradingPage', methods=["GET", "POST"])
@@ -161,27 +172,81 @@ def delete_transaction(transaction_id):
     return redirect(url_for('transactions'))
 
 # Page for adding the teams (Shivang)
-@app.route('/addTeam', methods=["GET", "POST"])
+@app.route("/addTeam", methods=["GET", "POST"])
 def addTeam():
     if request.method == "POST":
         newTeam = {
             "teamName": request.form["teamName"],
-            "teamMembers": request.form["teamMembers"], 
+            "teamMembers": request.form["teamMembers"],
         }
         if newTeam not in team:
             team.append(newTeam)
             print(team)
-        return redirect(url_for('addTeam')) 
+        return redirect(url_for("addTeam"))
     return render_template("addTeam.html", teams=team)
 
+
 # Removing the teams (Shivang)
-@app.route('/removeTeam', methods=['POST'])
+@app.route("/removeTeam", methods=["POST"])
 def removeTeam():
-    teamName = request.form['teamName']
+    teamName = request.form["teamName"]
     global team
-    team = [t for t in team if t['teamName'] != teamName]
-    print(f"After removal: {team}")  
-    return redirect(url_for('addTeam'))
+    team = [t for t in team if t["teamName"] != teamName]
+    print(f"After removal: {team}")
+    return redirect(url_for("addTeam"))
+
+
+# Results
+@app.route("/results", methods=["GET"])
+def results():
+    # dummy team names, later to be replaced by actual team list
+    names = [
+        "Bullish Blazers",
+        "Market Mavericks",
+        "Stock Sharks",
+        "Trade Titans",
+        "Capital Crafters",
+        "Profit Prophets",
+        "Equity Eagles",
+        "Finance Falcons",
+        "Wealth Warriors",
+        "Investor Innovators",
+    ]
+
+    """ data about each team to be stored in dictionary implemented as 
+            - portfolio = {}=> team name: portfolio value information for all rounds as list
+            - cash = {}=> team name: cash holdings value for all rounds as list
+            - as rounds progress, new portfolio values and cash value to be appended in corresponding lists for each team
+            
+            - rankings = {}=> this dictionary would be generated at the end of all rounds
+    """
+
+    portfolio = {}
+    cash = {}
+    rankings = {}
+    numberOfRounds = 8
+    for name in names:
+        portfolio[name] = [10000]
+        portfolio[name].extend(
+            [random.randrange(1001, 10000) for _ in range(numberOfRounds)]
+        )
+        cash[name] = [10000]
+        cash[name].extend(
+            [
+                random.randrange(1000, portfolio[name][x + 1])
+                for x in range(numberOfRounds)
+            ]
+        )
+    rankings = dict(
+        sorted(portfolio.items(), key=lambda item: item[1][-1], reverse=True)[:3]
+    )
+    return render_template(
+        "results.html",
+        portfolio=portfolio,
+        cash=cash,
+        rankings=rankings,
+        numberOfRounds=numberOfRounds,
+    )
 
 
 with app.app_context():

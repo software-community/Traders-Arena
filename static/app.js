@@ -39,7 +39,7 @@ document
     newContent.classList.add("EventContentStyle");
     newTitle.classList.add("EventHeading");
     newRound.classList.add("EventRound");
-    deleteButton.classList.add("EventDelete");
+    deleteButton.classList.add("EventDelete",'mb-8','py-1', 'rounded-lg');
     ImageDiv.classList.add("imageDiv");
     EventDetailDiv.classList.add("EventDetailDiv");
     EventFooter.classList.add("eventFooter");

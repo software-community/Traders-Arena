@@ -132,6 +132,7 @@ def removeTeam():
 @app.route('/stockNews')
 def stockNews():
     return render_template('stockNews.html')
+    
 
 with app.app_context():
     db.create_all()

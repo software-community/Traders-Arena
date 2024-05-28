@@ -24,6 +24,15 @@ class Stock(db.Model):
     stock = db.Column(db.String(80), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     timeIssued = db.Column(db.DateTime, default=datetime.utcnow)
+    
+class Transaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    buyer_team = db.Column(db.String(80), nullable=False)
+    seller_team = db.Column(db.String(80), nullable=False)
+    stock = db.Column(db.String(80), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    timeOfTransaction = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 # Competitions are stored as object of this class
@@ -80,8 +89,8 @@ def delete_competition():
         del Competition[key_to_delete]
     return redirect("/dashboard")
 
-
-@app.route("/initialBuying", methods=["GET", "POST"])
+# initial buying page
+@app.route('/initialBuying', methods=["GET", "POST"])
 def stocksIssue():
     if request.method == "POST":
         team = request.form["team"]
@@ -103,13 +112,64 @@ def stock_detail(stock_id):
     return render_template("stock_detail.html", stock=stock)
 
 
-@app.route("/delete_stock/<int:stock_id>", methods=["POST"])
+# To delete issued stock history
+@app.route('/delete_stock/<int:stock_id>', methods=["POST"])
 def delete_stock(stock_id):
     stock = Stock.query.get_or_404(stock_id)
     db.session.delete(stock)
     db.session.commit()
     return redirect(url_for("stocksIssue"))
 
+# Trading Page
+@app.route('/tradingPage', methods=["GET", "POST"])
+def transactions():
+    if request.method == "POST":
+        buyer_team = request.form['buyer_team']
+        seller_team = request.form['seller_team']
+        stock = request.form['stock']
+        quantity = request.form['quantity']
+        price = request.form['price']
+        
+        total_price = float(quantity) * float(price)
+
+        # Get buyer funds from db
+        buyer_funds = 1000
+        # Get seller stocks form db
+        seller_stock = 500
+
+        # Check if the buyer has enough funds
+        if total_price > buyer_funds:
+            return """
+            <script>
+                alert('Buyer does not have enough funds for this transaction.');
+                window.location.href = 'tradingPage';
+            </script>
+            """
+
+        # Check if the seller has enough stock
+        if int(quantity) > seller_stock:
+            return """
+            <script>
+                alert('Seller does not have enough stock for this transaction.');
+                window.location.href = 'tradingPage';
+            </script>
+            """
+
+        
+        new_transaction = Transaction(buyer_team=buyer_team, seller_team=seller_team, stock=stock, quantity=quantity, price=price)
+        db.session.add(new_transaction)
+        db.session.commit()
+        return redirect(url_for('transactions'))  # Redirect to avoid form resubmission
+    transactions = Transaction.query.order_by(Transaction.id.desc()).all()  # Order by id in descending order
+    return render_template('tradingPage.html', transactions=transactions)
+
+# To delete or undo trades (probably redundant)
+@app.route('/delete_transaction/<int:transaction_id>', methods=["POST"])
+def delete_transaction(transaction_id):
+    transaction = Transaction.query.get_or_404(transaction_id)
+    db.session.delete(transaction)
+    db.session.commit()
+    return redirect(url_for('transactions'))
 
 # Page for adding the teams (Shivang)
 @app.route("/addTeam", methods=["GET", "POST"])

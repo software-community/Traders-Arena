@@ -43,16 +43,6 @@ class Transaction(db.Model):
     )
 
 
-# Competitions are stored as object of this class
-class CompetitionObj:
-    def __init__(self, competitionName, numberOfRounds, walletSize):
-        self.competitionName = competitionName
-        self.numberOfRounds = numberOfRounds
-        self.walletSize = walletSize
-        self.stocks = {}
-        self.rounds = {}
-
-
 class Stock_name(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     competition_id = db.Column(db.Integer, db.ForeignKey("competition.id"))

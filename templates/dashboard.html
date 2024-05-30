@@ -15,7 +15,9 @@
     - Each object has attributes/member variables that contain further information -->
     <h1 class="text-4xl text-white text-center mb-8">Competition Dashboard</h1>
     {% for key, obj in competition.items() %}
-    <div class="mx-auto w-3/4 border border-gray-700 bg-gray-800 rounded-md p-4 mb-4">
+    <div
+      class="mx-auto w-3/4 border border-gray-700 bg-gray-800 rounded-md p-4 mb-4"
+    >
       <div class="flex justify-between items-center">
         <h3 class="text-white text-lg font-semibold mb-2">
           {{ obj.competitionName }}

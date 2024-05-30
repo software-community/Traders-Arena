@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.85" />
+    <title>Stock News</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body>
+    <div class="main">
+      <div class="formpage mt-5 mb-5 px-8">
+        <form id="form" action="">
+          <h2
+            style="
+              text-align: center;
+              color: #dcdcdc;
+              font-size: 1.7rem;
+              font-weight: 550;
+            "
+            class="mt-4"
+          >
+            <u>News & Events</u>
+          </h2>
+          <div>
+            <div class="mb-3 pb-2">
+              <label for="title">Title: </label>
+              <br />
+              <input
+                class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
+                type="text"
+                id="title"
+                name="title"
+              />
+            </div>
+
+            <div class="mb-3 pb-2">
+              <label for="content">Content: </label>
+              <textarea
+                class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
+                rows="8"
+                cols="30"
+                type="text"
+                id="content"
+                name="content"
+              ></textarea>
+            </div>
+
+            <div class="mb-3 pb-2">
+              <label for="image">Upload Image: </label>
+              <input
+                class="filebutton block w-11/12 text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 bg-gray-900 shadow appearance-none border rounded-lg custom-input leading-tight focus:outline-none focus:shadow-outline"
+                type="file"
+                name="eventImage"
+                id="image"
+              />
+            </div>
+            <div>
+              <div class="mb-3 pb-2">
+                <label for="round">Round No: </label>
+                <input
+                  class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
+                  type="text"
+                  id="round"
+                  name="round"
+                />
+                <br />
+                <br />
+                <label for="round">Effect: </label>
+                <br />
+                <input type="radio" name="effect" id="positive" />
+                <label for="positive">Positive</label>
+                <br />
+                <input type="radio" name="effect" id="negative" />
+                <label for="negative">Negative</label>
+                <br />
+                <input type="radio" name="effect" id="neutral" />
+                <label for="neutral">Neutral</label>
+              </div>
+              <button
+                id="addEvent"
+                class="newBtn mb-8 w-11/12 bg-red-700 hover:bg-red-800 text-white font-bold py-1 rounded-lg focus:outline-none focus:shadow-outline"
+              >
+                Add Event
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <h2>
+        <u>Updated News</u>
+      </h2>
+      <div id="Event"></div>
+    </div>
+
+    <script src="../static/app.js"></script>
+  </body>
+</html>

@@ -5,7 +5,6 @@ Author: Team SoftCom
 
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from lib.models import *
 from datetime import datetime
 import random
 
@@ -248,6 +247,9 @@ def results():
         numberOfRounds=numberOfRounds,
     )
 
+@app.route('/stockNews')
+def stockNews():
+    return render_template('stockNews.html')
 
 with app.app_context():
     db.create_all()

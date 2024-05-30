@@ -40,8 +40,9 @@
             id="competitionNames"
             class="absolute z-10 bg-white rounded-md shadow-lg w-4/5 mt-2"
           >
-            {% for name in competition %}
-            <option value="{{ name }}">{% endfor %}</option>
+            {% for competition in competitions %}
+            <option value="{{ competition.competitionName }}"></option>
+            {% endfor %}
           </datalist>
         </div>
 

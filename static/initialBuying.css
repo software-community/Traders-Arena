@@ -1,0 +1,131 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #0d0d2b; /* Darker blue background */
+    color: #ffffff; /* White text */
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #1f1f38; /* Darker container background */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    margin-top: 50px;
+    border-radius: 8px;
+}
+
+.history-container {
+    width: 70%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #1f1f38; /* Darker container background */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    margin-top: 50px;
+    border-radius: 8px;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #dcdcdc; /* Light grey */
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 10px;
+    color: #dcdcdc; /* Light grey */
+}
+
+input[type="text"], input[type="number"], select {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #13132e; /* Darker input background */
+    color: #ffffff; /* White text */
+}
+
+input[type="submit"] {
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #0ec927; /* Bright red for contrast */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #167c0d; /* Darker red on hover */
+}
+
+select {
+    background-color: #13132e; /* Darker blue */
+    color: #fff;
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 4px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+select option {
+    background-color: #13132e; /* Darker blue */
+    color: #fff;
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 4px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    color: #dcdcdc; /* Light grey text */
+    table-layout: fixed; /* Ensures the table layout doesn't change */
+    word-wrap: break-word; /* Wraps words to fit the cell */
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #3e3e60; /* Darker border */
+}
+
+th {
+    background-color: #13132e; /* Darker header background */
+}
+
+tr:hover {
+    background-color: #2e2e52; /* Slightly lighter dark blue on hover */
+}
+
+button.delete-button {
+    background-color: #e94560; /* Red background */
+    color: #fff; /* White text */
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#stockList {
+    margin-top: 20px;
+}
+
+.stock-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}

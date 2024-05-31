@@ -13,18 +13,38 @@
         -webkit-appearance: none;
         margin: 0;
       }
+
+      body
+      {
+        background-color: #0D0D2B;
+        color:#DCDCDC;
+        font-family: Arial, sans-serif;
+      }
+
+      .submitbtn
+      {
+        background-color: #0ec927;
+      }
+
+      .submitbtn:hover
+      {
+        background-color: #067C0D;
+      }
+
+
     </style>
   </head>
-  <body class="bg-gray-900 py-8">
-    <div class="w-7/12 mx-auto p-8 rounded-md shadow-md bg-gray-800 text-white">
+
+  <body class="py-8">
+    <div class="w-7/12 mx-auto p-8 rounded-md shadow-md " style="background-color:#1f1f38">
       <form id="competitionForm" action="/stock_admin" method="POST">
-        <h1 class="text-2xl font-bold mb-4">Stock Trading Competition Setup</h1>
+        <h1 class="text-2xl font-bold mb-4 py-5 text-center">Stock Trading Competition Setup</h1>
 
         <!-- Competition Name Entry Field -->
         <div class="mb-4">
           <label
             for="competitionName"
-            class="block text-white-700 font-bold mb-2"
+            class="block font-bold mb-2"
             >Competition Name:</label
           >
           <input
@@ -48,7 +68,7 @@
 
         <!-- Stock Names and Prices -->
         <div class="mb-4">
-          <label class="block text-white-700 font-bold mb-2"
+          <label class="block  font-bold mb-2"
             >Stock Names and Prices:</label
           >
           <div id="stockInputsContainer">
@@ -58,7 +78,7 @@
 
         <!-- Number of Rounds -->
         <div class="mb-4">
-          <label for="rounds" class="block text-white-700 font-bold mb-2"
+          <label for="rounds" class="block  font-bold mb-2"
             >Number of Rounds:</label
           >
           <div class="flex items-center mb-2">
@@ -71,7 +91,7 @@
               required
             />
             <button
-              class="bg-violet-500 text-white px-4 py-2 rounded-md"
+              class="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-md"
               type="button"
               onclick="displayStockNames()"
               data-required
@@ -83,7 +103,7 @@
 
         <!-- Closing Prices -->
         <div class="mb-4" id="closingPrices" style="display: none">
-          <label class="block text-white-700 font-bold mb-2"
+          <label class="block  font-bold mb-2"
             >Closing Prices:</label
           >
           <div id="stockDisplayContainer">
@@ -95,7 +115,7 @@
         <div class="mb-2 flex items-center">
           <label
             for="walletSize"
-            class="block text-white-700 font-bold mb-2 mr-6"
+            class="block font-bold mb-2 mr-6"
             >Wallet Size:</label
           >
           <div class="relative w-1/4">
@@ -119,7 +139,7 @@
           <button
             id="submit"
             type="submit"
-            class="w-1/5 bg-green-500 text-white px-4 py-2 rounded-md ml-auto"
+            class="w-1/5 px-4 py-2 rounded-md ml-auto submitbtn"
           >
             Submit
           </button>

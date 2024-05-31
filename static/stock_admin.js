@@ -76,11 +76,7 @@ function addInputField(button) {
   var stockName = stockNameInput.value;
   var price = priceInput.value;
   stockNameInput.name = "stockName";
-  stockNameInput.readOnly = true;
-  stockNameInput.style.border = "none";
   priceInput.name = "price";
-  priceInput.readOnly = true;
-  priceInput.style.border = "none";
 
   // Add the values to the stockEntries array
   if (stockName && price) {
@@ -90,6 +86,12 @@ function addInputField(button) {
     alert("Please enter both stock name and price.");
     return;
   }
+
+  // Disabling input fields
+  stockNameInput.readOnly = true;
+  stockNameInput.style.border = "none";
+  priceInput.readOnly = true;
+  priceInput.style.border = "none";
 
   //Remove button has two functions
   //  - to only remove one stock field

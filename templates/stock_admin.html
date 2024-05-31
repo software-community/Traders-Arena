@@ -53,8 +53,17 @@
             name="competitionName"
             class="w-4/5 px-3 py-2 border rounded-md bg-gray-900"
             placeholder="Competition Name"
+            list="competitionNames"
             required
           />
+          <datalist
+            id="competitionNames"
+            class="absolute z-10 bg-white rounded-md shadow-lg w-4/5 mt-2"
+          >
+            {% for competition in competitions %}
+            <option value="{{ competition.competitionName }}"></option>
+            {% endfor %}
+          </datalist>
         </div>
 
         <!-- Stock Names and Prices -->

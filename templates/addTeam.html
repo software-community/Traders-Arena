@@ -48,9 +48,9 @@
     <!-- for managing the team removal -->
 
     <script>
-      async function removeTeam(teamName) {
+      async function removeTeam(teamID) {
         const formData = new FormData();
-        formData.append("teamName", teamName);
+        formData.append("teamID", teamID);
 
         const response = await fetch("/removeTeam", {
           method: "POST",
@@ -94,7 +94,7 @@
               <button
                 class="removeteam text-base font-bold py-0 px-2 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                onclick="removeTeam('{{ team.teamName }}')"
+                onclick="removeTeam('{{ team.teamID }}')"
               >
                 Remove
               </button>

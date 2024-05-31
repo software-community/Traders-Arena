@@ -13,7 +13,12 @@ db = SQLAlchemy(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Storing team details
-team = []
+# team = []
+class Team(db.Model):
+    teamID = db.Column(db.Integer, primary_key=True)
+    keyCompetition = db.Column(db.String(80), default="Traders Arena") #key competition would be extracted from competitionObj when making comp
+    teamName = db.Column(db.String(80), nullable=False)
+    teamMembers = db.Column(db.String(200), nullable=False)
 
 class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -161,27 +166,38 @@ def delete_transaction(transaction_id):
     return redirect(url_for('transactions'))
 
 # Page for adding the teams (Shivang)
-@app.route('/addTeam', methods=["GET", "POST"])
+@app.route("/addTeam", methods=["GET", "POST"])
 def addTeam():
     if request.method == "POST":
-        newTeam = {
-            "teamName": request.form["teamName"],
-            "teamMembers": request.form["teamMembers"], 
-        }
-        if newTeam not in team:
-            team.append(newTeam)
-            print(team)
-        return redirect(url_for('addTeam')) 
-    return render_template("addTeam.html", teams=team)
+        teamName = request.form["teamName"]
+        teamMembers = request.form["teamMembers"]
+        
+        existing_team = Team.query.filter_by(teamName=teamName).first()
+        if existing_team:
+            return """
+            <script>
+                alert('Team name already exists.');
+                window.location.href = '/addTeam';
+            </script>
+            """
+        
+        newTeam = Team(teamName=teamName, teamMembers=teamMembers)
+        db.session.add(newTeam)
+        db.session.commit()
+        return redirect(url_for("addTeam"))
+    
+    teams = Team.query.all() 
+    return render_template("addTeam.html", teams=teams)
 
 # Removing the teams (Shivang)
-@app.route('/removeTeam', methods=['POST'])
+@app.route("/removeTeam", methods=["POST"])
 def removeTeam():
-    teamName = request.form['teamName']
-    global team
-    team = [t for t in team if t['teamName'] != teamName]
-    print(f"After removal: {team}")  
-    return redirect(url_for('addTeam'))
+    teamID = request.form.get('teamID')
+    team = Team.query.get(teamID)
+    if team:
+        db.session.delete(team)
+        db.session.commit()
+    return redirect(url_for("addTeam"))
 
 
 with app.app_context():

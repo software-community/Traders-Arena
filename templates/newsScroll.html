@@ -99,6 +99,7 @@
         .prev,
         .next {
             color: #E2E8F0;
+            z-index: 5;
         }
 
         .dotsbox .dot {
@@ -180,17 +181,20 @@
         <div class="py-2">
             <div class="slider">
 
-                <button id="pauseButton" onclick="togglePause()">Pause</button>
+                
                 {% for slide in slides %}
                 <div class="myslide fade slide-content">
                     <img src="{{ slide.image }}" style="display:absolute;">
                     <div class="txt">
+                        <!-- <button id="pauseButton" onclick="togglePause()">Pause</button> -->
                         <h1>{{ slide.title }}</h1>
                         <p>{{ slide.content }}</p>
                     </div>
                     <div class="chart-container">
+                        <button class="pause-chart-button" onclick="toggleChartPause()">Pause</button>
                         <canvas id="chart-{{ loop.index0 }}"></canvas>
                     </div>
+                    
 
                 </div>
                 {% endfor %}
@@ -209,99 +213,119 @@
 
     <script src="../static/newsScroll.js"></script>
     <script>
-let myCharts = [];
-let currentStockIndex = 0; 
-
-// Function to create a chart
-function createChart(ctx, labels, data, label, backgroundColor, borderColor) {
-    return new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: label,
-                data: data,
-                backgroundColor: backgroundColor,
-                borderColor: borderColor,
-                borderWidth: 4,
-                pointRadius: 8,
-                fill: false
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#E2E8F0'
+    let myCharts = [];
+    let currentStockIndex = 0;
+    let intervalID; // Declare a variable to store the interval ID
+    let isStop = false; // Variable to keep track of the pause state
+    
+    // Function to create a chart
+    function createChart(ctx, labels, data, label, backgroundColor, borderColor) {
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: 4,
+                    pointRadius: 8,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#E2E8F0'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#E2E8F0',
+                        }
                     }
                 },
-                x: {
-                    ticks: {
-                        color: '#E2E8F0',
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#E2E8F0',
+                        }
                     }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#E2E8F0',
+                },
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 20,
+                        top: 20,
+                        bottom: 20
                     }
-                }
-            },
-            layout: {
-                padding: {
-                    left: 20,
-                    right: 20,
-                    top: 20,
-                    bottom: 20
-                }
-            },
-            responsive: true,
-            maintainAspectRatio: false,
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+            }
+        });
+    }
+    
+    // Function to update charts
+    function updateCharts(round) {
+        const stockData = {{ stock_data | tojson }};
+        const labels = Array.from({ length: round }, (_, i) => `Round ${i + 1}`);
+        const allStocks = Object.keys(stockData);
+    
+        document.querySelectorAll('.chart-container canvas').forEach((canvas, index) => {
+            if (myCharts[index]) {
+                myCharts[index].destroy();
+            }
+            const currentStock = allStocks[currentStockIndex];
+            const data = stockData[currentStock].slice(0, round);
+    
+            myCharts[index] = createChart(canvas.getContext('2d'), labels, data, currentStock, color = '#' + Math.floor(2677215).toString(16), color = '#' + Math.floor(1677215).toString(16));
+    
+            currentStockIndex = (currentStockIndex + 1) % allStocks.length;
+        });
+    }
+    
+    // Function to change round
+    function changeRound() {
+        const roundSelect = document.getElementById('round-select');
+        const selectedRound = parseInt(roundSelect.value);
+        updateCharts(selectedRound);
+        clearInterval(intervalID);
+        window.location.href = `/round/${selectedRound}`;
+    }
+    
+    // Function to toggle pause
+    function toggleChartPause() {
+        if (isStop) {
+            intervalID = setInterval(() => {
+                updateCharts(initialRound);
+            }, 3000);
+            document.querySelectorAll('.pause-chart-button').forEach(button => {
+                button.textContent = "Pause";
+            });
+        } else {
+            clearInterval(intervalID);
+            document.querySelectorAll('.pause-chart-button').forEach(button => {
+                button.textContent = "Play";
+            });
         }
-    });
-}
+        isStop = !isStop;
+    }
+    
+    // Call updateCharts initially
+    const initialRound = {{ current_round }};
+    updateCharts(initialRound);
+    
+    // Start the interval initially
+    intervalID = setInterval(() => {
+        updateCharts(initialRound);
+    }, 3000); // Update every 5 seconds
+    
+</script>
 
-// Function to update charts
-function updateCharts(round) {
-    const stockData = {{ stock_data | tojson }};
-    const labels = Array.from({ length: round }, (_, i) => `Round ${i + 1}`);
-    const allStocks = Object.keys(stockData); 
-
-    document.querySelectorAll('.chart-container canvas').forEach((canvas, index) => {
-        if (myCharts[index]) {
-            myCharts[index].destroy();
-        }
-        const currentStock = allStocks[currentStockIndex];
-        const data = stockData[currentStock].slice(0, round);
-        
-        myCharts[index] = createChart(canvas.getContext('2d'), labels, data, currentStock, color = '#' + Math.floor(2677215).toString(16), color = '#' + Math.floor( 1677215).toString(16));
-        
-        currentStockIndex = (currentStockIndex + 1) % allStocks.length;
-    });
-}
-
-// Function to change round
-function changeRound() {
-    const roundSelect = document.getElementById('round-select');
-    const selectedRound = parseInt(roundSelect.value);
-    updateCharts(selectedRound);
-}
-
-// Call updateCharts initially
-updateCharts({{ current_round }});
-
-// Call updateCharts periodically
-setInterval(() => {
-    const roundSelect = document.getElementById('round-select');
-    const selectedRound = parseInt(roundSelect.value);
-    updateCharts(selectedRound);
-}, 4000); // Update every 5 seconds
-
-    </script>
     
     
 </body>
-
-</html>

@@ -6,7 +6,7 @@ slidefun(counter);
 
 console.log(myslide.length);
 
-let timer = setInterval(autoSlide, 8000);
+var timer = setInterval(autoSlide, 21000);
 function autoSlide() {
     if (!isPaused) {
         counter += 1;
@@ -25,7 +25,7 @@ function currentSlide(n) {
 }
 function resetTimer() {
     clearInterval(timer);
-    timer = setInterval(autoSlide, 8000);
+    timer = setInterval(autoSlide, 21000);
 }
 function slidefun(n) {
     let i;

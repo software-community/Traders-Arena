@@ -1,14 +1,14 @@
 body {
-  background-color: #111827 !important;
+  background-color: #0D0D2B !important;
   color: white !important;
-  font-family: "Plus Jakarta Sans", sans-serif !important;
+  font-family: Arial, sans-serif;
 }
 
 .formpage {
-  background-color: #000;
+  background-color: #1f1f38;
   width: 50%;
   min-width: 350px;
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   left: 7%;
   box-shadow: 10px 10px 20px black;
 }
@@ -22,24 +22,20 @@ body {
 }
 
 #addEvent {
-  background-color: #23c55e;
+  background-color: #0ec927;
   color: white;
   font-weight: 500;
 }
 
 #addEvent:hover {
-  border: 1px solid white;
-  color: black;
+  
+  background-color: #167C0D;
 }
 
 input,
 textarea {
   color: white !important;
   background-color: #13132e !important;
-}
-
-label {
-  font-weight: 550;
 }
 
 .EventStyle {

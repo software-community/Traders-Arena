@@ -11,7 +11,9 @@
 
     <style>
       body {
-        background-color: rgb(21, 21, 41);
+        background-color: #0D0D2B;
+        color: #DCDCDC;
+        font-family: Arial, sans-serif;
       }
 
       .custom-input::placeholder {
@@ -21,6 +23,26 @@
       .custom-input {
         color: #e2e8f0; /* Tailwind CSS class text-gray-200 */
       }
+
+      .addteam, .backbtn
+      {
+        background-color: #0ec927;
+      }
+      .addteam:hover, .backbtn:hover
+      {
+        background-color: #167C0D;
+      }
+
+      .removeteam
+      {
+        background-color: #e94560;
+        height: 2.2rem;
+      }
+      .removeteam:hover
+      {
+        background-color: #db2e4b;
+      }
+
     </style>
 
     <!-- for managing the team removal -->
@@ -50,25 +72,27 @@
         action="{{ url_for('addTeam') }}"
         method="POST"
         onsubmit="addTeam(event)"
-        class="z-10 bg-black shadow-md rounded px-12 pt-6 pb-8 mb-4"
+        class="z-10 shadow-md px-12 pt-6 pb-8 mb-4"
+        style="background-color: #1f1f38; border-radius: 8px; width:40rem;"
       >
         <div
-          class="block text-white text-sm font-bold mb-6 text-lg text-center"
+          class="block font-bold mb-6 text-3xl text-center"
+          style="color:#DCDCDC;"
         >
           <h1>Team Details Section</h1>
         </div>
-        <div class="block text-white text-sm font-bold mb-3 py-3">
-          <h1 class="gap-px py-2">Teams Registered :</h1>
+        <div class="block text-xl font-bold py-3">
+          <h1 class="gap-px py-0">Teams Registered :</h1>
           <ol class="pl-3 list-decimal">
             {% for team in teams %}
             <li class="gap-8 flex items-center justify-between py-1">
               <span
-                class="py-1 bg-gray-900 rounded focus:outline-none px-2 text-gray-300"
+                class="py-1 w-3/12 text-base bg-gray-900 rounded focus:outline-none px-2 text-gray-300"
               >
-                <p class="text-gray-350">{{ team.teamName }}</p>
+                <p>{{ team.teamName }}</p>
               </span>
               <button
-                class="bg-red-700 hover:bg-red-800 text-white font-bold py-0 px-2 rounded focus:outline-none focus:shadow-outline"
+                class="removeteam text-base font-bold py-0 px-2 rounded focus:outline-none focus:shadow-outline"
                 type="button"
                 onclick="removeTeam('{{ team.teamName }}')"
               >
@@ -79,9 +103,9 @@
           </ol>
         </div>
         <div class="flex space-x-4 py-4">
-          <div class="mb-4">
+          <div class="pb-8">
             <label
-              class="block text-white text-sm font-bold mb-2"
+              class="block text-sm font-bold mb-2"
               for="teamname"
             >
               Team Name
@@ -97,7 +121,7 @@
           </div>
           <div class="mb-4">
             <label
-              class="block text-white text-sm font-bold mb-2"
+              class="block  text-sm font-bold mb-2"
               for="members"
             >
               Team Members
@@ -114,13 +138,13 @@
         </div>
         <div class="flex items-center justify-between">
           <button
-            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            class="addteam font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="submit"
           >
             Add Team
           </button>
           <a
-            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            class="backbtn font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             href="{{ url_for('home') }}"
           >
             Back

@@ -53,7 +53,7 @@ function createInputField() {
 function createButton(
   label,
   onClick,
-  additionalClasses = "bg-blue-500 text-white px-4 py-2 rounded-md w-1/6 ml-auto"
+  additionalClasses = "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md w-1/6 ml-auto"
 ) {
   var button = document.createElement("button");
   button.innerHTML = label;

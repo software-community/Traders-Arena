@@ -1,0 +1,205 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+body {
+    background-color: #121212;
+    color: #E0E0E0;
+}
+
+/* Header styles */
+header {
+    height: 60px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    background-color: #1F1F1F;
+}
+
+
+#pauseButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #333;
+    color: #E0E0E0;
+    border: none;
+    padding: 10px 20px;
+	border: 1px solid black;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 2;
+    transition: background-color 0.3s;
+}
+
+#pauseButton:hover {
+    background-color: #444;
+}
+
+
+#logo {
+    background-color: #333;
+    line-height: 60px;
+    margin-left: 40px;
+    border-radius: 10px;
+    display: inline;
+    cursor: pointer;
+    font-size: 30px;
+    font-weight: bold;
+    padding: 4px 10px;
+    color: #E0E0E0; /* light grey */
+}
+
+#logo:hover {
+    color: #FFFFFF; /* white */
+}
+
+#logo-s {
+    color: #FFFFFF; /* white */
+    margin-left: 5px;
+}
+
+#logo:hover #logo-s {
+    color: #00A7FF; /* blue */
+}
+
+/* Slider styles */
+.slider {
+    margin: 8vh 12vw;
+    top: 4vh;
+    position: relative;
+	border: 1px solid black;
+    border-radius: 10px;
+    width: 90%;
+    height: 100%;
+    box-shadow: 3px 3px 10px rgba(0, 1, 1, 0.7);
+    background-color: #181818;
+}
+
+.myslide {
+    border-radius: 10px;
+    height: 655px;
+    display: none;
+    overflow: hidden;
+}
+
+.prev,
+.next {
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    font-size: 50px;
+    padding: 15px;
+    cursor: pointer;
+    color: #E0E0E0; /* light grey */
+    transition: 0.3s;
+    user-select: none;
+}
+
+.prev:hover,
+.next:hover {
+    color: #808586; /* blue */
+}
+
+.next {
+    right: 0;
+}
+
+.dotsbox {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+    bottom: 20px;
+    cursor: pointer;
+}
+
+.dot {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border: 3px solid #E0E0E0; /* light grey */
+    border-radius: 50%;
+    margin: 0 10px;
+    cursor: pointer;
+}
+
+/* Active and hover states for dots */
+.active,
+.dot:hover {
+    border-color: #00A7FF; /* blue */
+}
+
+/* Fade animation for slides */
+.fade {
+    -webkit-animation-name: fade;
+    -webkit-animation-duration: 1.5s;
+    animation-name: fade;
+    animation-duration: 1.5s;
+}
+
+@-webkit-keyframes fade {
+    from {opacity: 0.8}
+    to {opacity: 1}
+}
+
+@keyframes fade {
+    from {opacity: 0.8}
+    to {opacity: 1}
+}
+
+/* Text styles */
+.txt {
+	border: 1px solid black;
+    position: absolute;
+    height: 84%;
+    width: 45%;
+    padding: 2%;
+    overflow: auto;
+    background: rgb(45, 55, 72, 0.9); /* darker grey */
+    color: #E0E0E0; /* light grey */
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    top: 5%;
+    left: 5%;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    animation-name: posi;
+    animation-duration: 2s;
+    z-index: 1;
+}
+
+.txt h1 {
+    color: #FFFFFF; /* white */
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.txt p {
+    font-size: 1.2rem;
+}
+
+/* Image zoom animation */
+img {
+    transform: scale(1.5, 1.5);
+    -webkit-animation-name: zoomin;
+    -webkit-animation-duration: 40s;
+    animation-name: zoomin;
+    animation-duration: 40s;
+}
+
+@-webkit-keyframes zoomin {
+    from {transform: scale(1, 1);}
+    to {transform: scale(1.5, 1.5);}
+}
+
+@keyframes zoomin {
+    from {transform: scale(1, 1);}
+    to {transform: scale(1.5, 1.5);}
+}
+
+

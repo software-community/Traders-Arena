@@ -17,6 +17,57 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # Storing team details
 team = []
 
+slides = {
+    "1": [
+        {
+            "title": "Tech Giant XYZ Reports Record Profits Amidst Global Economic Recovery",
+            "content": "In a remarkable turn of events, tech giant XYZ announced today that it has surpassed all expectations by reporting record-breaking profits for the last fiscal quarter. The surge in profits comes amidst a broader global economic recovery, with XYZ attributing its success to robust sales of its latest flagship products and innovative solutions in key markets worldwide. Analysts speculate that XYZ's strategic investments in cutting-edge technologies and its ability to adapt swiftly to changing consumer demands have positioned the company as a frontrunner in the highly competitive tech industry. As investors celebrate the news, XYZ's stock prices soar, reflecting renewed confidence in the company's future growth prospects.",
+            "image": "../static/img1.jpg"
+        },
+            {
+        "title": "Headline",
+        "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
+        "image": "../static/img3.jpg"
+    },
+    {
+        "title": "Headline",
+        "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
+        "image": "../static/img4.jpg"
+    },
+    ],
+    "2": [
+        {
+            "title": "Headline for Round 2",
+            "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
+            "image": "../static/img2.jpg"
+        },
+        {
+            "title": "Headline for Round 2",
+            "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
+            "image": "../static/img1.jpg"
+        },
+    ],
+
+    "3": [
+            {
+        "title": "Headline",
+        "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
+        "image": "../static/img5.jpg"
+    },
+            {
+            "title": "Tech Giant XYZ Reports Record Profits Amidst Global Economic Recovery",
+            "content": "In a remarkable turn of events, tech giant XYZ announced today that it has surpassed all expectations by reporting record-breaking profits for the last fiscal quarter. The surge in profits comes amidst a broader global economic recovery, with XYZ attributing its success to robust sales of its latest flagship products and innovative solutions in key markets worldwide. Analysts speculate that XYZ's strategic investments in cutting-edge technologies and its ability to adapt swiftly to changing consumer demands have positioned the company as a frontrunner in the highly competitive tech industry. As investors celebrate the news, XYZ's stock prices soar, reflecting renewed confidence in the company's future growth prospects.",
+            "image": "../static/img1.jpg"
+        },
+            {
+        "title": "Headline",
+        "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
+        "image": "https://plus.unsplash.com/premium_photo-1661675403671-164eefd1864e?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    }
+    ]
+    # More rounds...
+}
+
 
 class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -247,6 +298,33 @@ def results():
         rankings=rankings,
         numberOfRounds=numberOfRounds,
     )
+
+#Temporary stock price trend data
+stock_data = {
+        "Stock A": [1000, 110, 105, 115],
+        "Stock B": [200, 1900, 195, 205],
+        "Stock C": [400, 510, 220, 3300],
+        "Stock D": [200, 1100, 200, 330],
+        "Stock E": [100, 110, 420, 3300],
+        "Stock F": [500, 210, 3020, 330],
+        "Stock G": [3000, 310, 520, 330]
+    }
+
+# Updated showNews route
+@app.route('/showNews')
+def showNews():
+    round_number = "1"  # Default round
+    stock_data_round = get_stock_data_for_round(round_number)
+    return render_template('newsScroll.html', slides=slides[round_number], rounds=slides.keys(), current_round=round_number, stock_data=stock_data_round)
+
+@app.route('/round/<round_number>')
+def round(round_number):
+    stock_data_round = get_stock_data_for_round(round_number)
+    return render_template('newsScroll.html', slides=slides[round_number], rounds=slides.keys(), current_round=round_number, stock_data=stock_data_round)
+
+def get_stock_data_for_round(round_number):
+    stock_data_round = {stock: values[:int(round_number)] for stock, values in stock_data.items()}
+    return stock_data_round
 
 
 with app.app_context():

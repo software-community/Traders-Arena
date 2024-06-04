@@ -9,19 +9,26 @@
   <body class="bg-gray-900 py-8">
     <!--Centralised Dashboard to view all the competitions added, 
     - Delete Feature present
-    - Using Jinja to load compeition objects from compeition dictionary containing
-        added compeititions as (key: Competition Name, value: corresponding object)
-        using loop
-    - Each object has attributes/member variables that contain further information -->
+    - Using Jinja to load competition using loop
+    -->
     <h1 class="text-4xl text-white text-center mb-8">Competition Dashboard</h1>
-    {% for key, obj in competition.items() %}
-    <div class="mx-auto w-3/4 border border-gray-700 rounded-md p-4 mb-4">
+    {% for competition in competitions %}
+    <div
+      class="mx-auto w-3/4 border border-gray-700 bg-gray-800 rounded-md p-4 mb-4"
+    >
       <div class="flex justify-between items-center">
         <h3 class="text-white text-lg font-semibold mb-2">
-          {{ obj.competitionName }}
+          {{ competition.competitionName }}
+        </h3>
+        <h3 class="text-white font-semibold mb-2">
+          {{ competition.timeOfCreation }}
         </h3>
         <form action="/delete-competition" method="post">
-          <input type="hidden" name="keyToDelete" value="{{ key }}" />
+          <input
+            type="hidden"
+            name="keyToDelete"
+            value="{{ competition.id }}"
+          />
           <button
             type="submit"
             class="p-1 bg-red-500 text-white rounded hover:bg-red-600"
@@ -31,9 +38,9 @@
         </form>
       </div>
       <h3 class="text-white mb-2">
-        Number of Rounds: {{ obj.numberOfRounds }}
+        Number of Rounds: {{ competition.numberOfRounds }}
       </h3>
-      <h3 class="text-white mb-4">Wallet Size: {{ obj.walletSize }}</h3>
+      <h3 class="text-white mb-4">Wallet Size: {{ competition.walletSize }}</h3>
       <div class="overflow-x-auto">
         <table class="w-full border border-gray-700 border-collapse">
           <thead>
@@ -42,7 +49,7 @@
               <th class="px-4 py-2 text-white border border-gray-700">
                 Initial Price
               </th>
-              {% for i in range(obj.numberOfRounds) %}
+              {% for i in range(competition.numberOfRounds) %}
               <th class="px-4 py-2 text-white border border-gray-700">
                 Round {{ i +1 }}
               </th>
@@ -50,23 +57,23 @@
             </tr>
           </thead>
           <tbody>
-            {% for stock, initialPrice in obj.stocks.items() %}
+            {% for stock in competition.stocks %}
             <tr>
               <td
                 class="px-4 py-2 text-white border border-gray-700 text-center"
               >
-                {{ stock }}
+                {{ stock.name }}
               </td>
               <td
                 class="px-4 py-2 text-white border border-gray-700 text-center"
               >
-                {{ initialPrice }}
+                {{ stock.initial_price }}
               </td>
-              {% for closingPrice in obj.rounds[stock] %}
+              {% for round in stock.rounds %}
               <td
                 class="px-4 py-2 text-white border border-gray-700 text-center"
               >
-                {{ closingPrice }}
+                {{ round.price }}
               </td>
               {% endfor %}
             </tr>

@@ -22,24 +22,6 @@ header {
 }
 
 
-#pauseButton {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #333;
-    color: #E0E0E0;
-    border: none;
-    padding: 10px 20px;
-	border: 1px solid black;
-    border-radius: 10px;
-    cursor: pointer;
-    z-index: 2;
-    transition: background-color 0.3s;
-}
-
-#pauseButton:hover {
-    background-color: #444;
-}
 
 
 #logo {
@@ -67,6 +49,40 @@ header {
 #logo:hover #logo-s {
     color: #00A7FF; /* blue */
 }
+#pauseButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #1a202a;
+    color: #E2E8F0;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    z-index: 2; /* Ensure the button is above the chart */
+}
+
+#pauseButton:hover {
+    background-color: #4A5568;
+}
+
+.pause-chart-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #1a202a;
+    color: #E2E8F0;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    z-index: 2; /* Ensure the button is above the chart */
+}
+
+.pause-chart-button:hover {
+    background-color: #4A5568;
+}
+
 
 /* Slider styles */
 .slider {
@@ -173,6 +189,9 @@ header {
     z-index: 1;
 }
 
+
+
+
 .txt h1 {
     color: #FFFFFF; /* white */
     font-size: 1.8rem;
@@ -180,7 +199,7 @@ header {
 }
 
 .txt p {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 /* Image zoom animation */

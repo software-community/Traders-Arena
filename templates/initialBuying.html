@@ -16,21 +16,22 @@
   <body>
     <div class="container">
       <h1>Issue Stocks to Teams</h1>
-      <form action="/initialBuying" method="post">
+      <form action="{{ url_for('stocksIssue', ID = ID) }}" method="post">
         <label for="team">Team</label>
         <select id="team" name="team" required>
+
           <option value="" disabled selected>Select a team</option>
-          <option value="Sekiro">Sekiro</option>
-          <option value="Yakuza">Yakuza</option>
-          <option value="Summertime">Summertime</option>
+          {% for latest_team in latest_teams %}
+          <option value="{{latest_team.teamName}}">{{latest_team.teamName}}</option>
+          {% endfor %}
         </select>
 
         <label for="stock">Stock</label>
         <select id="stock" name="stock" required>
           <option value="" disabled selected>Select a stock</option>
-          <option value="Nifty">Nifty</option>
-          <option value="Sensex">Sensex</option>
-          <option value="Tata">Tata</option>
+          {% for latest_stock in latest_stocks %}
+          <option value="{{latest_stock.name}}">{{latest_stock.name}}</option>
+          {% endfor %}
         </select>
 
         <label for="quantity">Quantity</label>
@@ -47,7 +48,7 @@
             <th scope="col">Stock</th>
             <th scope="col">Quantity</th>
             <th scope="col">Time Issued</th>
-            <th scope="col">Remove</th>
+          
           </tr>
         </thead>
         <tbody>
@@ -57,26 +58,24 @@
             <td>{{ stock.stock }}</td>
             <td>{{ stock.quantity }}</td>
             <td>{{ stock.timeIssued }}</td>
-            <td>
-              <form
-                id="delete-form-{{ stock.id }}"
-                action="{{ url_for('delete_stock', stock_id=stock.id) }}"
-                method="post"
-                style="display: inline"
-              >
-                <button
-                  type="button"
-                  class="delete-button"
-                  onclick="confirmDeletion({{ stock.id }})"
-                >
-                  Delete
-                </button>
-              </form>
-            </td>
+
           </tr>
           {% endfor %}
         </tbody>
       </table>
+
     </div>
+    <button id = "nextRoundButton" type = "submit">
+      Proceed to Round 1
+    </button>
+
+    
+    <script>
+      document.getElementById("nextRoundButton").addEventListener("click", function () {
+        const ID = {{ID}}
+        window.location.href = "/tradingPage/"+ID;
+      });
+  </script>
+
   </body>
 </html>

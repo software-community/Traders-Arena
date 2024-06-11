@@ -8,71 +8,14 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import random
 from sqlalchemy.orm import joinedload
-from sqlalchemy import desc, func, Text
-from copy import copy
-
+from sqlalchemy import desc, func, LargeBinary
+import base64
 
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 db = SQLAlchemy(app)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-
-slides = {
-    "1": 
-    [
-        {
-            "title": "Tech Giant XYZ Reports Record Profits Amidst Global Economic Recovery",
-            "content": "In a remarkable turn of events, tech giant XYZ announced today that it has surpassed all expectations by reporting record-breaking profits for the last fiscal quarter. The surge in profits comes amidst a broader global economic recovery, with XYZ attributing its success to robust sales of its latest flagship products and innovative solutions in key markets worldwide. Analysts speculate that XYZ's strategic investments in cutting-edge technologies and its ability to adapt swiftly to changing consumer demands have positioned the company as a frontrunner in the highly competitive tech industry. As investors celebrate the news, XYZ's stock prices soar, reflecting renewed confidence in the company's future growth prospects.",
-            "image": "../static/img1.jpg"
-        },
-        {
-            "title": "Headline",
-            "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
-            "image": "../static/img3.jpg"
-        },
-        {
-            "title": "Headline",
-            "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
-            "image": "../static/img4.jpg"
-        },
-    ],
-    "2": 
-    [
-        {
-            "title": "Headline for Round 2",
-            "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
-            "image": "../static/img2.jpg"
-        },
-        {
-            "title": "Headline for Round 2",
-            "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
-            "image": "../static/img1.jpg"
-        },
-    ],
-
-    "3":
-    [
-        {
-            "title": "Headline",
-            "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
-            "image": "../static/img5.jpg"
-        },
-        {
-            "title": "Tech Giant XYZ Reports Record Profits Amidst Global Economic Recovery",
-            "content": "In a remarkable turn of events, tech giant XYZ announced today that it has surpassed all expectations by reporting record-breaking profits for the last fiscal quarter. The surge in profits comes amidst a broader global economic recovery, with XYZ attributing its success to robust sales of its latest flagship products and innovative solutions in key markets worldwide. Analysts speculate that XYZ's strategic investments in cutting-edge technologies and its ability to adapt swiftly to changing consumer demands have positioned the company as a frontrunner in the highly competitive tech industry. As investors celebrate the news, XYZ's stock prices soar, reflecting renewed confidence in the company's future growth prospects.",
-            "image": "../static/img1.jpg"
-        },
-        {
-            "title": "Headline",
-            "content": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam dolor ut totam repudiandae, aperiam necessitatibus deleniti veniam ea ab? Rem dolorem consectetur, sint pariatur ullam dolorum sunt corporis atque odio.",
-            "image": "https://plus.unsplash.com/premium_photo-1661675403671-164eefd1864e?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        }
-    ]
-    
-}
-
 
 
 class Team(db.Model):
@@ -85,7 +28,6 @@ class Team(db.Model):
     portfolioTrend = db.Column(db.String(1000), default = "")
     holding = db.Column(db.String(1000), default = "")
     
-
 
 class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -155,9 +97,15 @@ class Competition(db.Model):
 class StockNews(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(1000), nullable=False)
+    image = db.Column(LargeBinary)
     content = db.Column(db.Text, nullable=False)
-    
+    roundNumber = db.Column(db.Integer, nullable = False)
+    competition_id = db.Column(db.Integer, db.ForeignKey("competition.id"), default=lambda: Stock.get_latest_competition_id())
 
+    @staticmethod
+    def get_latest_competition_id():
+        latest_competition = db.session.query(func.max(Competition.id)).scalar()
+        return latest_competition if latest_competition else 0  # Return 0 if no competition exists
 
 
 def encode_holdings(holdings_dict):
@@ -175,7 +123,12 @@ def decode_holdings(holdings_str):
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    return render_template("index.html")
+    latest_competition = Competition.query.order_by(desc(Competition.id)).first()
+    if latest_competition:
+            ID = latest_competition.id
+    else:
+            ID = None
+    return render_template("index.html", ID = ID)
 
 
 # Stock_Admin - portal to add a Competition and involved elements (stocks, wallet size etc)
@@ -338,25 +291,6 @@ def stocksIssue(ID):
     ).all()  # Order by id in descending order
     return render_template("initialBuying.html", stocks=stocks, ID=ID, latest_teams=latest_teams, latest_stocks=latest_stocks)
 
-
-
-
-# @app.route("/stock/<int:stock_id>")
-# def stock_detail(stock_id):
-#     stock = Stock.query.get_or_404(stock_id)
-#     return render_template("stock_detail.html", stock=stock)
-
-
-# To delete issued stock history
-# @app.route("/delete_stock/<int:stock_id>", methods=["POST"])
-# def delete_stock(stock_id):
-#     ID = Competition.query.order_by(desc(Competition.id)).first().id
-#     stock = Stock.query.get_or_404(stock_id)
-#     db.session.delete(stock)
-#     db.session.commit()
-#     return redirect(url_for("stocksIssue"), ID = ID)
-
-
 # Trading Page
 @app.route("/tradingPage/<int:ID>", methods=["GET", "POST"])
 def transactions(ID):
@@ -453,15 +387,6 @@ def transactions(ID):
     ).all()  # Order by id in descending order
     return render_template("tradingPage.html", transactions=transactions, ID = ID, teams = latest_teams, latest_stocks = latest_stocks, currentRound = currentRound)
 
-
-# To delete or undo trades (probably redundant)
-# @app.route("/delete_transaction/<int:transaction_id>", methods=["POST"])
-# def delete_transaction(transaction_id):
-#     transaction = Transaction.query.get_or_404(transaction_id)
-#     db.session.delete(transaction)
-#     db.session.commit()
-#     return redirect(url_for("transactions"))
-
 # Helper function to calculate portfolio worth
 def calculate_portfolio_worth(team, current_round_prices):
     holdings = decode_holdings(team.holding)
@@ -533,7 +458,6 @@ def addTeam(ID):
     teams = Team.query.filter(Team.keyCompetition == ID)
     return render_template("addTeam.html", teams=teams, ID = ID)
 
-
 # Removing the teams (Shivang)
 @app.route("/removeTeam", methods=["POST"])
 def removeTeam():
@@ -560,27 +484,6 @@ def compOver(ID):
 # Results
 @app.route("/results/<int:ID>", methods=["GET"])
 def results(ID):
-
-    latest_competition = Competition.query.order_by(desc(Competition.id)).first()
-    if latest_competition:
-            ID = latest_competition.id
-    else:
-            ID = None
-
-    # dummy team names, later to be replaced by actual team list
-    names = [
-        "Bullish Blazers",
-        "Market Mavericks",
-        "Stock Sharks",
-        "Trade Titans",
-        "Capital Crafters",
-        "Profit Prophets",
-        "Equity Eagles",
-        "Finance Falcons",
-        "Wealth Warriors",
-        "Investor Innovators",
-    ]
-
     """ data about each team to be stored in dictionary implemented as 
             - portfolio = {}=> team name: portfolio value information for all rounds as list
             - cash = {}=> team name: cash holdings value for all rounds as list
@@ -589,36 +492,53 @@ def results(ID):
             - rankings = {}=> this dictionary would be generated at the end of all rounds
     """
 
+    latest_competition = Competition.query.order_by(desc(Competition.id)).first()
+    if latest_competition:
+        ID = latest_competition.id
+    else:
+        ID = None
+
+    latestTeams = Team.query.filter(Team.keyCompetition == ID).all()
+    names = list(team.teamName for team in latestTeams)
+    
     portfolio = {}
     cash = {}
     rankings = {}
-    numberOfRounds = 8
+    netWorth = {}
+    numberOfRounds = latest_competition.numberOfRounds 
+
     for name in names:
-        portfolio[name] = [10000]
-        portfolio[name].extend(
-            [random.randrange(1001, 10000) for _ in range(numberOfRounds)]
-        )
-        cash[name] = [10000]
-        cash[name].extend(
-            [
-                random.randrange(1000, portfolio[name][x + 1])
-                for x in range(numberOfRounds)
-            ]
-        )
-    rankings = dict(
-        sorted(portfolio.items(), key=lambda item: item[1][-1], reverse=True)[:3]
+        for team in latestTeams:
+            if team.teamName == name:
+                portfolio[name] = [0]
+                portfolio[name].extend(
+                    int(float(value)) for value in team.portfolioTrend.split(",") if value.strip()
+                )  # Skip empty strings
+                cash[name] = [latest_competition.walletSize]
+                cash[name].extend(
+                    int(float(value)) for value in team.walletTrend.split(",") if value.strip()
+                )  # Skip empty strings
+                netWorth[name] = [cash[name][-1] + portfolio[name][-1]]
+
+    netWorth = dict(
+        sorted(netWorth.items(), key=lambda item: item[1][-1], reverse=True)[:3]
     )
+    for team in netWorth:
+        rankings[team] = portfolio[team]
+    
     return render_template(
         "results.html",
         portfolio=portfolio,
         cash=cash,
         rankings=rankings,
         numberOfRounds=numberOfRounds,
-        ID = ID
+        netWorth = netWorth,
+        ID=ID
     )
 
-@app.route('/stockNews/<int:ID>')
+@app.route('/stockNews/<int:ID>', methods=["GET", "POST"])
 def stockNews(ID):
+    
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     if latest_competition:
         ID = latest_competition.id
@@ -626,36 +546,91 @@ def stockNews(ID):
     else:
         ID = None
         rounds = []
+    
+    latestNewsLength = len(StockNews.query.filter(StockNews.competition_id == ID).all())
+    print(latestNewsLength)
 
-    return render_template('stockNews.html', ID=ID, rounds=rounds)
-#Temporary stock price trend data
-stock_data = {
-        "Stock A": [1000, 110, 105, 115],
-        "Stock B": [200, 1900, 195, 205],
-        "Stock C": [400, 510, 220, 3300],
-        "Stock D": [200, 1100, 200, 330],
-        "Stock E": [100, 110, 420, 3300],
-        "Stock F": [500, 210, 3020, 330],
-        "Stock G": [3000, 310, 520, 330]
-    }
+    if request.method == "POST":
+        title = request.form.get("title")
+        roundNumber = request.form.get("round")
+        content = request.form.get("content")
+        image_file = request.files['image']  # Get uploaded image file
+        image_data = image_file.read() if image_file else None  # Read image data
+
+        newNews = StockNews(
+            title=title,
+            roundNumber=roundNumber,
+            content=content,
+            image=image_data,  # Save image data to the database
+        )
+        db.session.add(newNews)
+        db.session.commit()
+
+        return redirect(url_for("stockNews", ID=ID))
+    
+
+    print("Rendering stock news page.")
+    return render_template('stockNews.html', ID=ID, rounds=rounds, numberOfNews = latestNewsLength)
+
+
+def slides(ID):
+    slides = StockNews.query.filter(StockNews.competition_id == ID).all()
+    slides_data = {}
+    for slide in slides:
+        round_number = str(slide.roundNumber)
+        if round_number not in slides_data:
+            slides_data[round_number] = []
+        img = slide.image
+        img = base64.b64encode(img).decode('utf-8')
+        slides_data[round_number].append({
+            "title": slide.title,
+            "content": slide.content,
+            "image": img
+        })
+    return slides_data
+
+
+def stock_data(ID):
+    stock_data = {}
+    stocks = Stock_name.query.filter(Stock_name.competition_id == ID).all()
+    for stock in stocks:
+        if stock.name not in stock_data:
+            stock_data[stock.name] = []
+        stock_data[stock.name].append(stock.initial_price)
+         
+    for stock in stocks:
+        stockID = stock.id
+        stockRound = Round.query.filter(Round.stock_name_id == stockID).all()
+        for singleStock in stockRound:
+            stock_data[stock.name].append(singleStock.price)
+    return stock_data
+    
 
 # Updated showNews route
-@app.route('/showNews')
-def showNews():
+@app.route('/showNews/<int:ID>')
+def showNews(ID):
+    latest_competition = Competition.query.order_by(desc(Competition.id)).first()
+    if latest_competition:
+            ID = latest_competition.id
+    else:
+            ID = None
     round_number = "1"  # Default round
-    stock_data_round = get_stock_data_for_round(round_number)
-    return render_template('newsScroll.html', slides=slides[round_number], rounds=slides.keys(), current_round=round_number, stock_data=stock_data_round)
+    stock_data_round = get_stock_data_for_round(round_number, ID)
+    return render_template('newsScroll.html', slides=slides(ID)[round_number], rounds=slides(ID).keys(), current_round=round_number, stock_data=stock_data_round, ID = ID)
 
-@app.route('/round/<round_number>')
-def round(round_number):
-    stock_data_round = get_stock_data_for_round(round_number)
-    return render_template('newsScroll.html', slides=slides[round_number], rounds=slides.keys(), current_round=round_number, stock_data=stock_data_round)
+@app.route('/round/<int:ID>/<round_number>')
+def round(ID, round_number):
+    stock_data_round = get_stock_data_for_round(round_number, ID)
+    latest_competition = Competition.query.order_by(desc(Competition.id)).first()
+    if latest_competition:
+            ID = latest_competition.id
+    else:
+            ID = None
+    return render_template('newsScroll.html', slides=slides(ID)[round_number], rounds=slides(ID).keys(), current_round=round_number, stock_data=stock_data_round, ID =ID)
 
-def get_stock_data_for_round(round_number):
-    stock_data_round = {stock: values[:int(round_number)] for stock, values in stock_data.items()}
+def get_stock_data_for_round(round_number,ID):
+    stock_data_round = {stock: values[:int(round_number)] for stock, values in stock_data(ID).items()}
     return stock_data_round
-
-
 
 
 with app.app_context():

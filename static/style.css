@@ -21,13 +21,22 @@ body {
   color: #dcdcdc;
 }
 
-#addEvent {
+#addEvent, #newspage, #submit {
   background-color: #0ec927;
   color: white;
   font-weight: 500;
+  text-align: center;
 }
 
 #addEvent:hover {
+  
+  background-color: #167C0D;
+}
+#newspage:hover {
+  
+  background-color: #167C0D;
+}
+#submit:hover {
   
   background-color: #167C0D;
 }

@@ -16,7 +16,9 @@
      
       <a href="{{ url_for('stock_admin') }}">stock_admin</a><br />
       <a href="{{ url_for('receive_data') }}">dashboard</a><br />
+      {% if ID %}
       <a href="{{ url_for('showNews', ID = ID) }}">Latest Competition News</a><br />
+      {% endif %}
 
     
       

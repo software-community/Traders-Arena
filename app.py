@@ -291,6 +291,7 @@ def stocksIssue(ID):
     ).all()  # Order by id in descending order
     return render_template("initialBuying.html", stocks=stocks, ID=ID, latest_teams=latest_teams, latest_stocks=latest_stocks)
 
+
 # Trading Page
 @app.route("/tradingPage/<int:ID>", methods=["GET", "POST"])
 def transactions(ID):

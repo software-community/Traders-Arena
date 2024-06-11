@@ -60,6 +60,12 @@
   </head>
   <body class="font-sans" style="font-family: Arial, sans-serif; background-color: #0d0d2b; color:#DCDCDC;">
     <div class="min-h-screen flex flex-wrap justify-center">
+      <button
+      id="homeButton"
+      class="fixed top-8 left-8 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-full shadow-lg z-50"
+      onclick="window.location.href='/'">
+      Home
+    </button>
       <div class="h-1/6 w-full flex justify-center items-center">
         <h1 class="text-4xl font-bold text-center mt-8 mb-4">
           Competition Results
@@ -74,7 +80,7 @@
           class="card bg-gray-800 border border-gray-700 rounded-lg p-6 m-4 text-center"
         >
           <h2>{{ name }}</h2>
-          <h1 class="text-2xl font-bold mt-2">&#x20b9; {{ value|last }}</h1>
+          <h1 class="text-2xl font-bold mt-2">&#x20b9; {{ value|last + cash[name]|last}}</h1>
           <div
             id="card {{ name }}"
             class="flex justify-center items-center h-56 w-64"
@@ -109,7 +115,7 @@
               class="badge"
             />
             <h2>{{ name }}</h2>
-            <h1 class="text-2xl font-bold mt-2">&#x20b9; {{ value|last }}</h1>
+            <h1 class="text-2xl font-bold mt-2">&#x20b9; {{ netWorth[name]|last}}</h1>
             <div
               id="result {{ name }}"
               class="flex justify-center items-center h-56 w-64"

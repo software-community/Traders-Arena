@@ -118,6 +118,43 @@ button.delete-button {
     cursor: pointer;
 }
 
+button.delete {
+    padding: 10px;
+    
+    margin: 20px auto; /* Set top margin to 20px and left/right margins to auto for horizontal centering */
+    background-color: #0ec927; /* Bright red for contrast */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block; /* Ensure it behaves like a block-level element for margin auto to work */
+    width: fit-content; /* Optionally, adjust the width based on content */
+}
+
+button.delete:hover{
+
+    background-color: #167c0d;
+}
+
+#nextRoundButton{
+    position: absolute; /* Allows positioning the element relative to the nearest positioned ancestor */
+    top: 5%; /* Adjust the top margin as needed */
+    right: 3%; /* Adjust the left margin as needed */
+    padding: 10px;   
+    background-color: #0ec927; /* Green color for the button */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block; /* Ensure it behaves like a block-level element */
+    width: fit-content; /* Optionally, adjust the width based on content */
+}
+
+
+#nextRoundButton:hover{
+    background-color: #167c0d;
+}
+
 #stockList {
     margin-top: 20px;
 }

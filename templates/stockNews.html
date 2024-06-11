@@ -1,99 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=0.85" />
-    <title>Stock News</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  </head>
-  <body>
-    <div class="main">
-      <div class="formpage mt-5 mb-5 px-8">
-        <form id="form" action="">
-          <h2
-            style="
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.85" />
+  <title>Stock News</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <style>
+    .top-buttons {
+      display: flex;
+      justify-content: space-between;
+      position: absolute;
+      width: 100%;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      font-weight: bold;
+      color: white;
+      border-radius: 0.5rem;
+      text-align: center;
+    }
+
+    .left-button {
+      background-color: #38a169; /* Green */
+    }
+
+    .right-button {
+      background-color: #e53e3e; /* Red */
+      margin-left: auto;
+    }
+
+    .left-button:hover {
+      background-color: #2f855a; /* Darker green */
+    }
+
+    .right-button:hover {
+      background-color: #c53030; /* Darker red */
+    }
+
+    .error {
+      color: #e53e3e;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-buttons">
+    {% if numberOfNews > 0 %}
+      <h1 id="newspage" class="button left-button">
+        <a href="{{ url_for('showNews', ID = ID) }}">Check News Page</a>
+      </h1>
+    {% endif %}
+    <button id="submit" type="button" class="button right-button">
+      Proceed to add Teams
+    </button>
+  </div>
+
+  <div class="main">
+    <div class="formpage mt-8 mb-5 px-8">
+      <form id="form" action="/stockNews/{{ ID }}" method="POST" enctype="multipart/form-data">
+        <h2 style="
               text-align: center;
               color: #dcdcdc;
               font-size: 1.7rem;
               font-weight: 550;
-            "
-            class="mt-4"
-          >
-            News & Events
-          </h2>
-          <div>
-            <div class="mb-3 pb-2">
-              <label for="title">Title: </label>
-              <br />
-              <input
-                class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
-                type="text"
-                id="title"
-                name="title"
-              />
-            </div>
-
-            <div class="mb-3 pb-2">
-              <label for="content">Content: </label>
-              <textarea
-                class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
-                rows="8"
-                cols="30"
-                type="text"
-                id="content"
-                name="content"
-              ></textarea>
-            </div>
-
-            <div class="mb-3 pb-2">
-              <label for="image">Upload Image: </label>
-              <input
-                class="filebutton block w-11/12 text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 bg-gray-900 shadow appearance-none border rounded-lg custom-input leading-tight focus:outline-none focus:shadow-outline"
-                type="file"
-                name="eventImage"
-                id="image"
-              />
-            </div>
-            <div>
-              <div class="mb-3 pb-2">
-                <label for="round">Round No: </label>
-                <input
-                  class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
-                  type="text"
-                  id="round"
-                  name="round"
-                />
-                <br />
-                <br />
-                <label for="round">Effect: </label>
-                <br />
-                <input type="radio" name="effect" id="positive" />
-                <label for="positive">Positive</label>
-                <br />
-                <input type="radio" name="effect" id="negative" />
-                <label for="negative">Negative</label>
-                <br />
-                <input type="radio" name="effect" id="neutral" />
-                <label for="neutral">Neutral</label>
-              </div>
-              <button
-                id="addEvent"
-                class="newBtn mb-8 w-11/12 bg-red-700 hover:bg-red-800 text-white font-bold py-1 rounded-lg focus:outline-none focus:shadow-outline"
-              >
-                Add Event
-              </button>
-            </div>
+            " class="mt-4">
+          News & Events
+        </h2>
+        <div>
+          <div class="mb-3 pb-2">
+            <label for="title">Title: <span class="error" id="title-error" style="display:none;">This field is required.</span></label>
+            <br />
+            <input
+              class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
+              type="text" id="title" name="title" required />
           </div>
-        </form>
-      </div>
-      <h1 style="font-size: 2rem; font-weight: bold; color:#DCDCDC;">
-        Updated News
-      </h1>
-      <div id="Event"></div>
+
+          <div class="mb-3 pb-2">
+            <label for="content">Content: <span class="error" id="content-error" style="display:none;">This field is required.</span></label>
+            <textarea
+              class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
+              rows="8" cols="30" type="text" id="content" name="content" required></textarea>
+          </div>
+
+          <div class="mb-3 pb-2">
+            <label for="image">Upload Image: <span class="error" id="image-error" style="display:none;">This field is required.</span></label>
+            <input
+              class="filebutton block w-11/12 text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 bg-gray-900 shadow appearance-none border rounded-lg custom-input leading-tight focus:outline-none focus:shadow-outline"
+              type="file" name="image" id="image" accept="image/*" required />
+          </div>
+
+          <div class="mb-3 pb-2">
+            <label for="round">Round No: <span class="error" id="round-error" style="display:none;">This field is required.</span></label>
+            <select
+              class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
+              id="round" name="round" required>
+              <option value="" disabled selected>Select a round</option>
+              {% for round in rounds %}
+              <option value="{{ round }}">{{ round }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <button id="addEvent"
+            class="newBtn mb-8 w-11/12 bg-red-700 hover:bg-red-800 text-white font-bold py-1 rounded-lg focus:outline-none focus:shadow-outline">
+            Add Event
+          </button>
+        </div>
+      </form>
     </div>
 
-    <script src="../static/app.js"></script>
-  </body>
+    <div id="Event"></div>
+  </div>
+
+  <script>
+    document.getElementById("addEvent").addEventListener("click", function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      let valid = true;
+      
+      // Check if the title is filled
+      const titleInput = document.getElementById("title");
+      const titleError = document.getElementById("title-error");
+      if (!titleInput.value) {
+        titleError.style.display = "block";
+        valid = false;
+      } else {
+        titleError.style.display = "none";
+      }
+
+      // Check if the content is filled
+      const contentInput = document.getElementById("content");
+      const contentError = document.getElementById("content-error");
+      if (!contentInput.value) {
+        contentError.style.display = "block";
+        valid = false;
+      } else {
+        contentError.style.display = "none";
+      }
+
+      // Check if the image input is filled
+      const imageInput = document.getElementById("image");
+      const imageError = document.getElementById("image-error");
+      if (imageInput.files.length === 0) {
+        imageError.style.display = "block";
+        valid = false;
+      } else {
+        imageError.style.display = "none";
+      }
+
+      // Check if the round is selected
+      const roundInput = document.getElementById("round");
+      const roundError = document.getElementById("round-error");
+      if (!roundInput.value) {
+        roundError.style.display = "block";
+        valid = false;
+      } else {
+        roundError.style.display = "none";
+      }
+
+      // Submit the form if all fields are valid
+      if (valid) {
+        document.getElementById("form").submit();
+      }
+    });
+
+    document.getElementById("submit").addEventListener("click", function () {
+      const ID = {{ ID }};
+      window.location.href = "/addTeam/" + ID;
+    });
+  </script>
+
+  <script src="../static/app.js"></script>
+</body>
+
 </html>

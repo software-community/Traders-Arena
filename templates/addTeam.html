@@ -69,7 +69,7 @@
   <body>
     <div class="h-screen flex items-center justify-center">
       <form
-        action="{{ url_for('addTeam') }}"
+        action="{{ url_for('addTeam', ID = ID) }}"
         method="POST"
         onsubmit="addTeam(event)"
         class="z-10 shadow-md px-12 pt-6 pb-8 mb-4"
@@ -145,9 +145,9 @@
           </button>
           <a
             class="backbtn font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            href="{{ url_for('home') }}"
+            href="{{ url_for('stocksIssue', ID = ID) }}"
           >
-            Back
+            Begin the Session
           </a>
         </div>
       </form>

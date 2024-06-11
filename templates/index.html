@@ -13,13 +13,15 @@
   <body body class="bg-black text-white font-sans">
     Hello World!
     <div>
-      <a href="{{ url_for('addTeam') }}">Add New Team</a><br />
+     
       <a href="{{ url_for('stock_admin') }}">stock_admin</a><br />
       <a href="{{ url_for('receive_data') }}">dashboard</a><br />
-      <a href="{{ url_for('results') }}">results</a><br />
-      <a href="{{ url_for('stocksIssue') }}" >Initial Buying</a><br/>
-      <a href="{{ url_for('transactions') }}" >Trade between Teams</a><br/>
-      <a href="{{ url_for('stockNews') }}" >Stock News</a><br/>
+      {% if ID %}
+      <a href="{{ url_for('showNews', ID = ID) }}">Latest Competition News</a><br />
+      {% endif %}
+
+    
+      
   </div>
 </body>
 </html>

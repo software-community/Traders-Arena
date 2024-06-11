@@ -4,30 +4,47 @@ function initFunction(portfolio, cash, rankings, numberOfRounds) {
     labels_list.push(i.toString());
   }
 
+  var maxPortfolioValue = 0;
+  var maxCashValue = 0;
+
+  // Finding the maximum value in the portfolio and cash datasets
+  Object.keys(portfolio).forEach(function(teamName) {
+    portfolio[teamName].forEach(function(value) {
+      if (value > maxPortfolioValue) {
+        maxPortfolioValue = value;
+      }
+    });
+
+    cash[teamName].forEach(function(value) {
+      if (value > maxCashValue) {
+        maxCashValue = value;
+      }
+    });
+  });
+
+  // Adding a buffer for better visualization
+  var maxYValue = parseInt(Math.max(maxPortfolioValue, maxCashValue) * 1.1);
+
   // Generating all the charts for teams before final results
-  Object.keys(portfolio).forEach(function (teamName) {
-    // Creating a canvas element
+  Object.keys(portfolio).forEach(function(teamName) {
     var canvas = document.createElement("canvas");
     canvas.className = "chart-canvas w-full h-full";
-    // Setting the class name to include the team name
-    // Appending the canvas element to the div
     document.getElementById("card " + teamName).appendChild(canvas);
 
-    // chart configuration for the current team
     var chartConfig = {
       type: "line",
       data: {
-        labels: labels_list, // labels_list is defined aboce
+        labels: labels_list,
         datasets: [
           {
             label: "Portfolio",
-            data: portfolio[teamName], // using team name here
+            data: portfolio[teamName],
             borderColor: "rgb(75, 192, 192)",
             tension: 0.1,
           },
           {
             label: "Cash",
-            data: cash[teamName], // using team name here
+            data: cash[teamName],
             borderColor: "rgba(56,143,237)",
             tension: 0.1,
           },
@@ -50,28 +67,23 @@ function initFunction(portfolio, cash, rankings, numberOfRounds) {
               display: true,
               text: "Value",
             },
-            min: 0, // minimum value for the y-axis scale
-            max: 10000, // maximum value for the y-axis scale
+            min: 0,
+            max: maxYValue,
           },
         },
       },
     };
 
-    // Initializing a chart for the current canvas element with the chart configuration
     new Chart(canvas, chartConfig);
   });
 
   // Generating charts for top 3 teams for final result display
-  Object.keys(rankings).forEach(function (teamName) {
-    // Creating a canvas element
+  Object.keys(rankings).forEach(function(teamName) {
     var canvas = document.createElement("canvas");
     canvas.className = "chart-canvas w-full h-full";
-    // Setttng the class name to include the team name
-    // Appending the canvas element to the document body or any container element
     document.getElementById("result " + teamName).innerHTML = "";
     document.getElementById("result " + teamName).appendChild(canvas);
 
-    // chart configuration for the current team
     var chartConfig = {
       type: "line",
       data: {
@@ -108,14 +120,13 @@ function initFunction(portfolio, cash, rankings, numberOfRounds) {
               display: true,
               text: "Value",
             },
-            min: 0, // minimum value for the y-axis scale
-            max: 10000, // maximum value for the y-axis scale
+            min: 0,
+            max: maxYValue,
           },
         },
       },
     };
 
-    // Initializing a chart for the current canvas element with the chart configuration
     new Chart(canvas, chartConfig);
   });
 }

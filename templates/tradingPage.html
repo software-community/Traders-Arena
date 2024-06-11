@@ -21,76 +21,153 @@
             return true;
         }
     </script>
+
+
+
 </head>
 <body>
     <div class="container">
-        <h1>Stock Transactions</h1>
-        <form action="/tradingPage" method="post" onsubmit="return validateForm()">
+        <h1>Stock Transactions - Round {{currentRound}}</h1>
+        <form action="{{url_for('transactions', ID = ID)}}" method="post" onsubmit="return validateForm()">
             <label for="buyer_team">Buyer Team</label>
             <select id="buyer_team" name="buyer_team" required>
                 <option value="" disabled selected>Select a team</option>
-                <option value="Yakuza">Yakuza</option>
-                <option value="Sekiro">Sekiro</option>
-                <option value="Summertime">Summertime</option>
+                {% for team in teams %}
+                    <option value="{{team.teamName}}" data-balance="{{team.wallet}}">{{team.teamName}}</option>
+                {% endfor %}
             </select>
+            <h6 id= "current_balance1" style="margin-top: 1%;" > Current Balance: Rs 0</h6>
 
             <label for="seller_team">Seller Team</label>
             <select id="seller_team" name="seller_team" required>
                 <option value="" disabled selected>Select a team</option>
-                <option value="Yakuza">Yakuza</option>
-                <option value="Sekiro">Sekiro</option>
-                <option value="Summertime">Summertime</option>
+                {% for team in teams %}
+                <option value="{{team.teamName}}" data-balance="{{team.wallet}}">{{team.teamName}}</option>
+                {% endfor %}
             </select>
+            <h6 id= "current_balance2" style="margin-top: 1%;" > Current Balance: Rs 0</h6>
+
             
             <label for="stock">Stock</label>
             <select id="stock" name="stock" required>
                 <option value="" disabled selected>Select a stock</option>
-                <option value="Sensex">Sensex</option>
-                <option value="Nifty">Nifty</option>
-                <option value="Dogecoin">Dogecoin</option>
+                {% for stock in latest_stocks %}
+                <option value="{{stock.name}}">{{stock.name}}</option>
+                {% endfor %}
             </select>
             
             <label for="quantity">Quantity</label>
             <input type="number" id="quantity" name="quantity" required>
 
-            <label for="price">Price</label>
+            <label for="price">Price(per stock)</label>
             <input type="number" id="price" name="price" required>
             
             <input type="submit" value="Submit Transaction">
         </form>
     </div>
+    
     <div class = "history-container" my = 10>
         <h2>Stock Transactions History</h2>
         <table id="transactionList">
             <thead>
                 <tr>
+                    <th scope="col">Round Number</th>
                     <th scope="col">Buyer</th>
                     <th scope="col">Seller</th>
                     <th scope="col">Stock</th>
                     <th scope="col">Quantity</th>
                     <th scope="col">Price</th>
                     <th scope="col">Time of Transaction</th>
-                    <th scope="col">Remove</th>
+                    
+                    
                 </tr>
             </thead>
             <tbody>
                 {% for transaction in transactions %}
                 <tr>
-                    <th scope="row">{{ transaction.buyer_team }}</th>
+                    <th scope="row">Round {{ transaction.roundOfTransaction }}</td>
+                    <td >{{ transaction.buyer_team }}</th>
                     <td>{{ transaction.seller_team }}</td>
                     <td>{{ transaction.stock }}</td>
                     <td>{{ transaction.quantity }}</td>
                     <td>{{ transaction.price }}</td>
                     <td>{{ transaction.timeOfTransaction }}</td>
-                    <td>
-                        <form id="delete-form-{{ transaction.id }}" action="{{ url_for('delete_transaction', transaction_id=transaction.id) }}" method="post" style="display:inline;">
-                            <button type="button" class="delete-button" onclick="confirmDeletion({{ transaction.id }})">Delete</button>
-                        </form>
-                    </td>
+
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    <button id ="nextRoundButton" >
+                Next Round
+    </button>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ID = 1; // Injecting ID from Flask context
+    
+            document.getElementById("nextRoundButton").addEventListener("click", function() {
+                fetch('/updateNext', {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => { throw new Error(text) });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                        if (data.message === "Competition Over") {
+                            // Handle competition over case, perhaps by redirecting to a different page
+                            window.location.href = `/results/${ID}`;  // Adjust URL as needed
+                        } else {
+                            window.location.reload();  // Refresh the page to show updated data
+                        }
+                    } else {
+                        alert("An error occurred: " + (data.error || "Unknown error"));
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred: " + error.message);
+                });
+            });
+        });
+    </script>
+    
+        
+
+
+    <script>
+        // Get a reference to the buyer team select element
+        const buyerTeamSelect = document.getElementById('buyer_team');
+        const sellerTeamSelect = document.getElementById('seller_team')
+        // Get a reference to the current balance element
+        const currentBalance1 = document.getElementById('current_balance1');
+        const currentBalance2 = document.getElementById('current_balance2');
+    
+        // Add event listener to the buyer team select element
+        buyerTeamSelect.addEventListener('change', function() {
+            // Get the selected option
+            const selectedOption = this.options[this.selectedIndex];
+            // Get the balance from the data attribute of the selected option
+            const balance = selectedOption.dataset.balance;
+            // Update the current balance text
+            currentBalance1.textContent = `Current Balance: Rs ${balance}`;
+        })
+
+        // Add event listener to the buyer team select element
+        sellerTeamSelect.addEventListener('change', function() {
+            // Get the selected option
+            const selectedOption = this.options[this.selectedIndex];
+            // Get the balance from the data attribute of the selected option
+            const balance = selectedOption.dataset.balance;
+            // Update the current balance text
+            currentBalance2.textContent = `Current Balance: Rs ${balance}`;
+        });
+    </script>
 </body>
 </html>

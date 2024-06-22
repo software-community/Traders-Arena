@@ -130,15 +130,11 @@ def decode_holdings(holdings_str):
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    print(session.get('logged_in'))
     if session.get('logged_in') != True:
+            print("Redirecting to login")
             return redirect("/login")
-    latest_competition = Competition.query.order_by(desc(Competition.id)).first()
-    if latest_competition:
-            ID = latest_competition.id
-    else:
-            ID = None
-    return render_template("index.html", ID = ID)
+    print("Redirecting to dashboard")
+    return redirect("/dashboard")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -231,8 +227,14 @@ def receive_data():
     competitions = Competition.query.options(
         joinedload(Competition.stocks).joinedload(Stock_name.rounds)
     ).all()
+    
+    latest_competition = Competition.query.order_by(desc(Competition.id)).first()
+    if latest_competition:
+            ID = latest_competition.id
+    else:
+            ID = None
 
-    return render_template("dashboard.html", competitions=competitions)
+    return render_template("dashboard.html", competitions=competitions, ID=ID)
 
 
 # Delete Competition from Dashboard

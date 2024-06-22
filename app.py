@@ -10,10 +10,10 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, s
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from datetime import datetime, timedelta
-import random
 from sqlalchemy.orm import joinedload
 from sqlalchemy import desc, func, LargeBinary
 import base64
+import time
 
 
 app = Flask(__name__)
@@ -88,7 +88,7 @@ class Round(db.Model):
 
 
 class Competition(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, default=lambda: int(time.time()))
     competitionName = db.Column(db.String(80), nullable=False, unique=True)
     currentRound = db.Column(db.Integer, nullable=False, default=1)
     numberOfRounds = db.Column(db.Integer, nullable=False)

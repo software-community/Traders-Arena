@@ -141,8 +141,7 @@ def home():
 def login():
     if request.method == "GET":
         if session.get('logged_in'):
-            return redirect("/stock_admin")
-        return render_template("login.html")
+            return redirect("/dashboard")
     else:
         user = request.form.get("username")
         users = os.getenv("USERS").split(",")
@@ -151,9 +150,10 @@ def login():
         if user in users and password == actual_password:
             session.update({'logged_in': True})
             print("Successfully Logged In!")
+            return redirect("/dashboard")
         else:
             print("Invalid Credentials!")
-        return redirect("/stock_admin")
+    return render_template("login.html")
 
 @app.route("/logout")
 def logout():

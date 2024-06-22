@@ -2,9 +2,13 @@
 Entrypoint for our management portal
 Author: Team SoftCom
 """
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_session import Session
 from datetime import datetime, timedelta
 import random
 from sqlalchemy.orm import joinedload
@@ -13,10 +17,13 @@ import base64
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
+app.config['SESSION_TYPE'] = 'sqlalchemy'
 db = SQLAlchemy(app)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
+app.config["SESSION_SQLALCHEMY"] = db
+Session(app)
+            
 
 class Team(db.Model):
     teamID = db.Column(db.Integer, primary_key=True)
@@ -123,6 +130,9 @@ def decode_holdings(holdings_str):
 
 @app.route("/", methods=["GET", "POST"])
 def home():
+    print(session.get('logged_in'))
+    if session.get('logged_in') != True:
+            return redirect("/login")
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     if latest_competition:
             ID = latest_competition.id
@@ -131,9 +141,34 @@ def home():
     return render_template("index.html", ID = ID)
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "GET":
+        if session.get('logged_in'):
+            return redirect("/stock_admin")
+        return render_template("login.html")
+    else:
+        user = request.form.get("username")
+        users = os.getenv("USERS").split(",")
+        password = request.form.get("password")
+        actual_password = os.getenv("PASSWORD")
+        if user in users and password == actual_password:
+            session.update({'logged_in': True})
+            print("Successfully Logged In!")
+        else:
+            print("Invalid Credentials!")
+        return redirect("/stock_admin")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
 # Stock_Admin - portal to add a Competition and involved elements (stocks, wallet size etc)
 @app.route("/stock_admin", methods=["GET", "POST"])
 def stock_admin():
+    if session.get('logged_in') != True:
+            return redirect("/login")
     if request.method == "POST":
         competitionName = request.form.get("competitionName")
         numberOfRounds = int(request.form.get("rounds"))
@@ -191,6 +226,8 @@ def stock_admin():
 # Dashboard to view all added Competitions (and the involved elements - Stocks, Prices etc)
 @app.route("/dashboard", methods=["GET", "POST"])
 def receive_data():
+    if session.get('logged_in') != True:
+            return redirect("/login")
     competitions = Competition.query.options(
         joinedload(Competition.stocks).joinedload(Stock_name.rounds)
     ).all()
@@ -201,6 +238,8 @@ def receive_data():
 # Delete Competition from Dashboard
 @app.route("/delete-competition", methods=["POST"])
 def delete_competition():
+    if session.get('logged_in') != True:
+            return redirect("/login")
     key_to_delete = request.form.get("keyToDelete")
     competition = Competition.query.options(
         joinedload(Competition.stocks).joinedload(Stock_name.rounds)
@@ -213,6 +252,8 @@ def delete_competition():
 
 @app.route("/initialBuying/<int:ID>", methods=["GET", "POST"])
 def stocksIssue(ID):
+    if session.get('logged_in') != True:
+            return redirect("/login")
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     if latest_competition:
         ID = latest_competition.id
@@ -295,6 +336,8 @@ def stocksIssue(ID):
 # Trading Page
 @app.route("/tradingPage/<int:ID>", methods=["GET", "POST"])
 def transactions(ID):
+    if session.get('logged_in') != True:
+            return redirect("/login")
 
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     currentRound = latest_competition.currentRound
@@ -399,6 +442,8 @@ def calculate_portfolio_worth(team, current_round_prices):
 
 @app.route("/updateNext", methods=["POST"])
 def next_round():
+    if session.get('logged_in') != True:
+            return redirect("/login")
 
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     ID = latest_competition.id
@@ -430,6 +475,8 @@ def next_round():
 # Page for adding the teams (Shivang)
 @app.route("/addTeam/<int:ID>", methods=["GET", "POST"])
 def addTeam(ID):
+    if session.get('logged_in') != True:
+            return redirect("/login")
 
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     if latest_competition:
@@ -462,6 +509,8 @@ def addTeam(ID):
 # Removing the teams (Shivang)
 @app.route("/removeTeam", methods=["POST"])
 def removeTeam():
+    if session.get('logged_in') != True:
+            return redirect("/login")
 
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     if latest_competition:
@@ -478,6 +527,8 @@ def removeTeam():
 
 @app.route("/compOver/<int:ID>")
 def compOver(ID):
+    if session.get('logged_in') != True:
+            return redirect("/login")
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     ID = latest_competition.id
     return render_template("CompOver.html", ID = ID)
@@ -493,6 +544,8 @@ def results(ID):
             - rankings = {}=> this dictionary would be generated at the end of all rounds
     """
 
+    if session.get('logged_in') != True:
+            return redirect("/login")
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     if latest_competition:
         ID = latest_competition.id
@@ -539,6 +592,8 @@ def results(ID):
 
 @app.route('/stockNews/<int:ID>', methods=["GET", "POST"])
 def stockNews(ID):
+    if session.get('logged_in') != True:
+            return redirect("/login")
     
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     if latest_competition:
@@ -610,6 +665,8 @@ def stock_data(ID):
 # Updated showNews route
 @app.route('/showNews/<int:ID>')
 def showNews(ID):
+    if session.get('logged_in') != True:
+            return redirect("/login")
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     if latest_competition:
             ID = latest_competition.id
@@ -621,6 +678,8 @@ def showNews(ID):
 
 @app.route('/round/<int:ID>/<round_number>')
 def round(ID, round_number):
+    if session.get('logged_in') != True:
+            return redirect("/login")
     stock_data_round = get_stock_data_for_round(round_number, ID)
     latest_competition = Competition.query.order_by(desc(Competition.id)).first()
     if latest_competition:

@@ -406,7 +406,7 @@ def transactions(ID):
 
         holding_dict2 = decode_holdings(sellerTeamObj.holding)
         if stock in holding_dict2:
-            holding_dict2[stock] += int(quantity)
+            holding_dict2[stock] -= int(quantity)
         else:
             holding_dict2[stock] = int(quantity)
         sellerTeamObj.holding = encode_holdings(holding_dict2)

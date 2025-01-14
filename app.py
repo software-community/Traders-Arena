@@ -22,6 +22,7 @@ app.config['SESSION_TYPE'] = 'sqlalchemy'
 db = SQLAlchemy(app)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SESSION_SQLALCHEMY"] = db
+app.config["SERVER_NAME"] = "traders-arena.nalinangrish.me" # TODO: Make this dynamic
 Session(app)
             
 

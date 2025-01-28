@@ -22,7 +22,9 @@ app.config['SESSION_TYPE'] = 'sqlalchemy'
 db = SQLAlchemy(app)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SESSION_SQLALCHEMY"] = db
-app.config["SERVER_NAME"] = "traders-arena.nalinangrish.me" # TODO: Make this dynamic
+server_name = os.getenv("SERVER_NAME")
+if server_name:
+    app.config["SERVER_NAME"] = server_name
 Session(app)
             
 
@@ -149,7 +151,7 @@ def login():
         password = request.form.get("password")
         actual_password = os.getenv("PASSWORD")
         if user in users and password == actual_password:
-            session.update({'logged_in': True})
+            session.update({'logged_in': True, 'user': user})
             print("Successfully Logged In!")
             return redirect("/dashboard")
         else:
@@ -432,7 +434,7 @@ def transactions(ID):
     transactions = Transaction.query.filter(Transaction.competition_id == ID).order_by(
         Transaction.id.desc()
     ).all()  # Order by id in descending order
-    return render_template("tradingPage.html", transactions=transactions, ID = ID, teams = latest_teams, latest_stocks = latest_stocks, currentRound = currentRound)
+    return render_template("tradingPage.html", transactions=transactions, ID = ID, teams = latest_teams, latest_stocks = latest_stocks, currentRound = currentRound, user=session.get('user'))
 
 # Helper function to calculate portfolio worth
 def calculate_portfolio_worth(team, current_round_prices):

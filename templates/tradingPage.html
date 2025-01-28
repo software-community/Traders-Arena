@@ -98,13 +98,13 @@
             </tbody>
         </table>
     </div>
+
+    {% if user == 'admin' %}
     <button id ="nextRoundButton" >
                 Next Round
     </button>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const ID = 1; // Injecting ID from Flask context
-    
             document.getElementById("nextRoundButton").addEventListener("click", function() {
                 fetch('/updateNext', {
                     method: "POST",
@@ -137,11 +137,15 @@
             });
         });
     </script>
+    {% endif %}
     
         
 
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          const ID = 1; // Injecting ID from Flask context
+        });
         // Get a reference to the buyer team select element
         const buyerTeamSelect = document.getElementById('buyer_team');
         const sellerTeamSelect = document.getElementById('seller_team')

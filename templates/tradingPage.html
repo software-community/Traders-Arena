@@ -119,12 +119,16 @@
                 })
                 .then(data => {
                     if (data.message) {
-                        alert(data.message);
                         if (data.message === "Competition Over") {
-                            // Handle competition over case, perhaps by redirecting to a different page
-                            window.location.href = `/results/${ID}`;  // Adjust URL as needed
+                            alert("Competition Over! Redirecting to results...");
+                            if (data.redirect) {
+                                window.location.href = data.redirect;
+                            } else {
+                                window.location.href = `/results/${ID}`;
+                            }
                         } else {
-                            window.location.reload();  // Refresh the page to show updated data
+                            alert(data.message);
+                            window.location.reload();
                         }
                     } else {
                         alert("An error occurred: " + (data.error || "Unknown error"));

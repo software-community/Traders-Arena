@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participant Dashboard - Trader's Arena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+        }
+        .neumorph {
+            background: #1a1a1a;
+            box-shadow: 8px 8px 16px #0d0d0d,
+                       -8px -8px 16px #272727;
+            border-radius: 15px;
+        }
+        .neumorph-inset {
+            background: #1a1a1a;
+            box-shadow: inset 4px 4px 8px #0d0d0d,
+                       inset -4px -4px 8px #272727;
+            border-radius: 10px;
+        }
+        .neumorph-button {
+            background: #1a1a1a;
+            box-shadow: 4px 4px 8px #0d0d0d,
+                       -4px -4px 8px #272727;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .neumorph-button:hover {
+            box-shadow: 2px 2px 4px #0d0d0d,
+                       -2px -2px 4px #272727;
+        }
+        .neumorph-button:active {
+            box-shadow: inset 2px 2px 4px #0d0d0d,
+                       inset -2px -2px 4px #272727;
+        }
+        .table-container {
+            background: #1a1a1a;
+            box-shadow: inset 4px 4px 8px #0d0d0d,
+                       inset -4px -4px 8px #272727;
+            border-radius: 10px;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        .table-header {
+            background: #1a1a1a;
+            box-shadow: 2px 2px 4px #0d0d0d;
+        }
+        .table-cell {
+            border-color: #272727;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-4 px-2 sm:px-4">
+    <div class="max-w-7xl mx-auto w-full">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+            <h1 class="text-3xl sm:text-4xl text-gray-300 font-light text-center sm:text-left">Team Dashboard</h1>
+            <div class="flex items-center gap-4">
+                <span class="text-gray-400 text-sm sm:text-base">Welcome, {{ team.teamName }}</span>
+                <a href="{{ url_for('participant_logout') }}" class="neumorph-button px-4 py-2 text-gray-300 text-sm">
+                    Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Competition Info -->
+        <div class="neumorph p-4 sm:p-6 mb-8">
+            <h2 class="text-xl sm:text-2xl text-gray-300 font-light mb-4">{{ competition.competitionName }}</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                <div class="neumorph-inset p-4 flex flex-col items-center">
+                    <h3 class="text-gray-400 text-xs sm:text-sm mb-2">Current Round</h3>
+                    <p class="text-gray-300 text-lg sm:text-xl">{{ competition.currentRound }} / {{ competition.numberOfRounds }}</p>
+                </div>
+                <div class="neumorph-inset p-4 flex flex-col items-center">
+                    <h3 class="text-gray-400 text-xs sm:text-sm mb-2">Wallet Balance</h3>
+                    <p class="text-gray-300 text-lg sm:text-xl">₹{{ "%.2f"|format(team.wallet) }}</p>
+                </div>
+                <div class="neumorph-inset p-4 flex flex-col items-center">
+                    <h3 class="text-gray-400 text-xs sm:text-sm mb-2">Portfolio Value</h3>
+                    <p class="text-gray-300 text-lg sm:text-xl">₹{{ "%.2f"|format(portfolio_worth) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Holdings -->
+        <div class="neumorph p-4 sm:p-6 mb-8">
+            <h2 class="text-xl sm:text-2xl text-gray-300 font-light mb-4">Current Holdings</h2>
+            <div class="table-container">
+                <table class="w-full min-w-[400px] text-xs sm:text-sm">
+                    <thead>
+                        <tr>
+                            <th class="px-2 sm:px-4 py-2 text-gray-300 table-header">Stock</th>
+                            <th class="px-2 sm:px-4 py-2 text-gray-300 table-header">Quantity</th>
+                            <th class="px-2 sm:px-4 py-2 text-gray-300 table-header">Current Price</th>
+                            <th class="px-2 sm:px-4 py-2 text-gray-300 table-header">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock, quantity in holdings.items() %}
+                        <tr>
+                            <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">{{ stock }}</td>
+                            <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">{{ quantity }}</td>
+                            <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">
+                                ₹{{ "%.2f"|format(current_round_prices[stock]) }}
+                            </td>
+                            <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">
+                                ₹{{ "%.2f"|format(quantity * current_round_prices[stock]) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="neumorph p-4 sm:p-6">
+            <h2 class="text-xl sm:text-2xl text-gray-300 font-light mb-4">Recent Transactions</h2>
+            <div class="table-container">
+                <table class="w-full min-w-[500px] text-xs sm:text-sm">
+                    <thead>
+                        <tr>
+                            <th class="px-2 sm:px-4 py-2 text-gray-300 table-header">Time</th>
+                            <th class="px-2 sm:px-4 py-2 text-gray-300 table-header">Type</th>
+                            <th class="px-2 sm:px-4 py-2 text-gray-300 table-header">Stock</th>
+                            <th class="px-2 sm:px-4 py-2 text-gray-300 table-header">Quantity</th>
+                            <th class="px-2 sm:px-4 py-2 text-gray-300 table-header">Price</th>
+                            <th class="px-2 sm:px-4 py-2 text-gray-300 table-header">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">
+                                {{ transaction.timeOfTransaction.strftime('%Y-%m-%d %H:%M') }}
+                            </td>
+                            <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">
+                                {% if transaction.buyer_team == team.teamName %}
+                                <span class="text-green-400">Buy</span>
+                                {% else %}
+                                <span class="text-red-400">Sell</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">{{ transaction.stock }}</td>
+                            <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">{{ transaction.quantity }}</td>
+                            <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">₹{{ "%.2f"|format(transaction.price) }}</td>
+                            <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">
+                                ₹{{ "%.2f"|format(transaction.quantity * transaction.price) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

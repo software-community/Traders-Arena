@@ -5,6 +5,8 @@ Author: Team SoftCom
 from dotenv import load_dotenv
 load_dotenv()
 import os
+import random
+import string
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
@@ -28,15 +30,20 @@ if server_name:
 Session(app)
             
 
+def generate_team_id():
+    # Generate a random 6-character alphanumeric ID
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
 class Team(db.Model):
     teamID = db.Column(db.Integer, primary_key=True)
-    keyCompetition = db.Column(db.Integer, nullable=False) #key competition would be extracted from competitionObj when making comp
     teamName = db.Column(db.String(80), nullable=False)
     teamMembers = db.Column(db.String(200), nullable=False)
+    keyCompetition = db.Column(db.Integer, nullable=False)
     wallet = db.Column(db.Float, default=lambda : Competition.query.order_by(desc(Competition.id)).first().walletSize)
     walletTrend = db.Column(db.String(1000), default = "")
     portfolioTrend = db.Column(db.String(1000), default = "")
     holding = db.Column(db.String(1000), default = "")
+    participant_id = db.Column(db.String(6), unique=True, default=generate_team_id)
     
 
 class Stock(db.Model):
@@ -460,7 +467,6 @@ def next_round():
 
     teams = Team.query.filter(Team.keyCompetition == ID).all()
     for team in teams:
-
         portfolio_worth = calculate_portfolio_worth(team, current_round_prices)
         print(portfolio_worth)
         team.portfolioTrend += f",{portfolio_worth}"
@@ -468,13 +474,15 @@ def next_round():
         print("Portfolio","Team :",team,"-",team.portfolioTrend)
         print("Wallet Trend","Team :",team,"-",team.walletTrend)
 
-
     # Increment the current round
     latest_competition.currentRound += 1
     db.session.commit()
 
     if latest_competition.currentRound > latest_competition.numberOfRounds:
-        return jsonify({"message": "Competition Over"}), 200
+        return jsonify({
+            "message": "Competition Over",
+            "redirect": f"/results/{ID}"
+        }), 200
     return jsonify({"message": "Next round started successfully."}), 200
 
 # Page for adding the teams (Shivang)
@@ -506,7 +514,7 @@ def addTeam(ID):
         newTeam = Team(teamName=teamName, teamMembers=teamMembers, keyCompetition = ID)
         db.session.add(newTeam)
         db.session.commit()
-        return redirect(url_for("addTeam", ID = ID))
+        return redirect(url_for("addTeam", ID=ID))
     
     teams = Team.query.filter(Team.keyCompetition == ID)
     return render_template("addTeam.html", teams=teams, ID = ID)
@@ -697,6 +705,73 @@ def get_stock_data_for_round(round_number,ID):
     stock_data_round = {stock: values[:int(round_number)] for stock, values in stock_data(ID).items()}
     return stock_data_round
 
+# Add new routes for participant login and dashboard
+@app.route("/participant-login", methods=["GET", "POST"])
+def participant_login():
+    if request.method == "POST":
+        team_name = request.form.get("teamName")
+        participant_id = request.form.get("participantId")
+        
+        team = Team.query.filter_by(teamName=team_name, participant_id=participant_id).first()
+        
+        if team:
+            session['participant_logged_in'] = True
+            session['team_id'] = team.teamID
+            session['team_name'] = team.teamName
+            return redirect(url_for('participant_dashboard'))
+        else:
+            return render_template("participant_login.html", error="Invalid team name or ID")
+    
+    return render_template("participant_login.html")
+
+@app.route("/participant-dashboard")
+def participant_dashboard():
+    if not session.get('participant_logged_in'):
+        return redirect(url_for('participant_login'))
+    
+    team = Team.query.get(session['team_id'])
+    if not team:
+        session.clear()
+        return redirect(url_for('participant_login'))
+    
+    competition = Competition.query.get(team.keyCompetition)
+    
+    # Get current portfolio value with robust round access
+    current_round_prices = {}
+    for stock in competition.stocks:
+        if len(stock.rounds) >= competition.currentRound:
+            current_round_prices[stock.name] = stock.rounds[competition.currentRound - 1].price
+        elif stock.rounds:
+            current_round_prices[stock.name] = stock.rounds[-1].price
+        else:
+            current_round_prices[stock.name] = 0
+    portfolio_worth = calculate_portfolio_worth(team, current_round_prices)
+    
+    # Get holdings
+    holdings = decode_holdings(team.holding)
+    
+    # Get transaction history
+    transactions = Transaction.query.filter(
+        (Transaction.buyer_team == team.teamName) | 
+        (Transaction.seller_team == team.teamName)
+    ).order_by(Transaction.timeOfTransaction.desc()).all()
+    
+    return render_template(
+        "participant_dashboard.html",
+        team=team,
+        competition=competition,
+        portfolio_worth=portfolio_worth,
+        holdings=holdings,
+        transactions=transactions,
+        current_round_prices=current_round_prices
+    )
+
+@app.route("/participant-logout")
+def participant_logout():
+    session.pop('participant_logged_in', None)
+    session.pop('team_id', None)
+    session.pop('team_name', None)
+    return redirect(url_for('participant_login'))
 
 with app.app_context():
     db.create_all()

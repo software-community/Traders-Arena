@@ -16,33 +16,103 @@
     }
 
     body {
-      background-color: #0D0D2B;
-      color: #DCDCDC;
-      font-family: Arial, sans-serif;
+      background-color: #1a1a1a;
+    }
+
+    .neumorph {
+      background: #1a1a1a;
+      box-shadow: 8px 8px 16px #0d0d0d,
+                 -8px -8px 16px #272727;
+      border-radius: 15px;
+    }
+
+    .neumorph-inset {
+      background: #1a1a1a;
+      box-shadow: inset 4px 4px 8px #0d0d0d,
+                 inset -4px -4px 8px #272727;
+      border-radius: 10px;
+    }
+
+    .neumorph-button {
+      background: #1a1a1a;
+      box-shadow: 4px 4px 8px #0d0d0d,
+                 -4px -4px 8px #272727;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .neumorph-button:hover {
+      box-shadow: 2px 2px 4px #0d0d0d,
+                 -2px -2px 4px #272727;
+    }
+
+    .neumorph-button:active {
+      box-shadow: inset 2px 2px 4px #0d0d0d,
+                 inset -2px -2px 4px #272727;
+    }
+
+    .table-container {
+      background: #1a1a1a;
+      box-shadow: inset 4px 4px 8px #0d0d0d,
+                 inset -4px -4px 8px #272727;
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .table-header {
+      background: #1a1a1a;
+      box-shadow: 2px 2px 4px #0d0d0d;
+    }
+
+    .table-cell {
+      border-color: #272727;
+    }
+
+    input, select, textarea {
+      background: #1a1a1a !important;
+      box-shadow: inset 4px 4px 8px #0d0d0d,
+                 inset -4px -4px 8px #272727;
+      border: none !important;
+      color: #DCDCDC !important;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      box-shadow: inset 2px 2px 4px #0d0d0d,
+                 inset -2px -2px 4px #272727;
     }
 
     .submitbtn {
-      background-color: #0ec927;
+      background: #1a1a1a;
+      color: #0ec927;
+      box-shadow: 4px 4px 8px #0d0d0d,
+                 -4px -4px 8px #272727;
+      border-radius: 8px;
+      transition: all 0.3s ease;
     }
 
     .submitbtn:hover {
-      background-color: #067C0D;
+      color: #0a9c1d;
+      box-shadow: 2px 2px 4px #0d0d0d,
+                 -2px -2px 4px #272727;
     }
   </style>
 </head>
 
-<body class="py-8">
-  <div class="w-7/12 mx-auto p-8 rounded-md shadow-md " style="background-color:#1f1f38">
-    <form id="competitionForm" action="/stock_admin" method="POST">
-      <h1 class="text-2xl font-bold mb-4 py-5 text-center">Stock Trading Competition Setup</h1>
-
+<body class="min-h-screen py-8 px-4">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl text-gray-300 text-center mb-8 font-light">Stock Trading Competition Setup</h1>
+    
+    <form id="competitionForm" class="neumorph p-8">
       <!-- Competition Name Entry Field -->
-      <div class="mb-4">
-        <label for="competitionName" class="block font-bold mb-2">Competition Name:</label>
+      <div class="mb-6">
+        <label for="competitionName" class="block text-gray-300 font-light mb-2">Competition Name:</label>
         <input type="text" id="competitionName" name="competitionName"
-          class="w-4/5 px-3 py-2 border rounded-md bg-gray-900" placeholder="Competition Name" list="competitionNames"
+          class="w-full px-4 py-2" placeholder="Competition Name" list="competitionNames"
           required />
-        <datalist id="competitionNames" class="absolute z-10 bg-white rounded-md shadow-lg w-4/5 mt-2">
+        <datalist id="competitionNames" class="absolute z-10 bg-gray-900 rounded-lg shadow-lg w-full mt-2">
           {% for competition in competitions %}
           <option value="{{ competition.competitionName }}"></option>
           {% endfor %}
@@ -50,20 +120,20 @@
       </div>
 
       <!-- Stock Names and Prices -->
-      <div class="mb-4">
-        <label class="block  font-bold mb-2">Stock Names and Prices:</label>
-        <div id="stockInputsContainer">
+      <div class="mb-6">
+        <label class="block text-gray-300 font-light mb-2">Stock Names and Prices:</label>
+        <div id="stockInputsContainer" class="space-y-4">
           <!-- Initially, one input field -->
         </div>
       </div>
 
       <!-- Number of Rounds -->
-      <div class="mb-4">
-        <label for="rounds" class="block  font-bold mb-2">Number of Rounds:</label>
-        <div class="flex items-center mb-2">
-          <input type="number" id="rounds" name="rounds" class="w-1/4 px-3 py-2 border rounded-md mr-4 bg-gray-900"
+      <div class="mb-6">
+        <label for="rounds" class="block text-gray-300 font-light mb-2">Number of Rounds:</label>
+        <div class="flex items-center gap-4">
+          <input type="number" id="rounds" name="rounds" class="w-1/4 px-4 py-2"
             placeholder="Number of Rounds" required />
-          <button class="bg-violet-500 hover:bg-violet-600 px-4 py-2 rounded-md" type="button"
+          <button class="neumorph-button px-6 py-2 text-gray-300 font-medium text-sm" type="button"
             onclick="displayStockNames()" data-required>
             Enter
           </button>
@@ -71,26 +141,26 @@
       </div>
 
       <!-- Closing Prices -->
-      <div class="mb-4" id="closingPrices" style="display: none">
-        <label class="block  font-bold mb-2">Closing Prices:</label>
-        <div id="stockDisplayContainer">
+      <div class="mb-6" id="closingPrices" style="display: none">
+        <label class="block text-gray-300 font-light mb-2">Closing Prices:</label>
+        <div id="stockDisplayContainer" class="space-y-4">
           <!-- Display stock names here -->
         </div>
       </div>
 
       <!-- Wallet Size -->
-      <div class="mb-2 flex items-center">
-        <label for="walletSize" class="block font-bold mb-2 mr-6">Wallet Size:</label>
+      <div class="mb-6">
+        <label for="walletSize" class="block text-gray-300 font-light mb-2">Wallet Size:</label>
         <div class="relative w-1/4">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-lg">&#x20b9;</span>
-          <input type="number" id="walletSize" name="walletSize" class="w-full pl-8 py-2 border rounded-md bg-gray-900"
+          <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-300">&#x20b9;</span>
+          <input type="number" id="walletSize" name="walletSize" class="w-full pl-10 py-2"
             placeholder="Enter amount" required />
         </div>
       </div>
 
       <!-- Submit Button -->
-      <div class="mb-4 flex items-center justify-between">
-        <button id="submit" type="submit" class="w-1/5 px-4 py-2 rounded-md ml-auto submitbtn">
+      <div class="flex justify-end">
+        <button id="submit" type="submit" class="submitbtn px-8 py-2 font-medium">
           Submit
         </button>
       </div>
@@ -99,18 +169,20 @@
 
   <script>
     document.getElementById("competitionForm").addEventListener("submit", function(event) {
-      event.preventDefault(); // Prevent the default form submission
+      event.preventDefault();
 
-      // Create FormData object from the form
       const formData = new FormData(document.getElementById("competitionForm"));
 
-      // Send form data via fetch API
       fetch('/stock_admin', {
         method: 'POST',
         body: formData
       })
       .then(response => response.json())
       .then(data => {
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
         const competitionId = data.id;
         window.location.href = `/stockNews/${competitionId}`;
       })

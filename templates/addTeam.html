@@ -89,9 +89,10 @@
         <h1 class="gap-px py-0 text-gray-300">Teams Registered :</h1>
         <ol class="pl-3 list-decimal">
           {% for team in teams %}
-          <li class="gap-8 flex items-center justify-between py-1">
-            <span class="py-1 w-3/12 text-base bg-gray-900 rounded focus:outline-none px-2 text-gray-300">
-              <p>{{ team.teamName }} <span class="text-xs text-green-400">[ID: {{ team.participant_id }}]</span></p>
+          <li class="gap-5 flex items-center justify-between py-1">
+            <span class="py-1 w-3/12 text-base  rounded focus:outline-none px-2 text-gray-300">
+              <span>{{ team.teamName }}</span> <br>
+              <span class="text-base text-green-400 ml-5px">ID: {{ team.participant_id }}</span>
             </span>
             <button
               class="removeteam text-base font-bold py-0 px-2 focus:outline-none focus:shadow-outline"

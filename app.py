@@ -177,6 +177,10 @@ def stock_admin():
             return redirect("/login")
     if request.method == "POST":
         competitionName = request.form.get("competitionName")
+        # Check for duplicate competition name
+        existing = Competition.query.filter_by(competitionName=competitionName).first()
+        if existing:
+            return jsonify({'error': 'Competition name already exists. Please choose a different name.'}), 400
         numberOfRounds = int(request.form.get("rounds"))
         walletSize = float(request.form.get("walletSize"))
         new_competition = Competition(
@@ -266,11 +270,11 @@ def delete_competition():
 def stocksIssue(ID):
     if session.get('logged_in') != True:
             return redirect("/login")
-    latest_competition = Competition.query.order_by(desc(Competition.id)).first()
-    if latest_competition:
-        ID = latest_competition.id
-    else:
-        ID = None
+    
+    # Get the current competition
+    current_competition = Competition.query.get(ID)
+    if not current_competition:
+        return redirect("/dashboard")
 
     latest_teams = Team.query.filter(Team.keyCompetition == ID).all()
     latest_stocks = Stock_name.query.filter(Stock_name.competition_id == ID).all()
@@ -315,17 +319,16 @@ def stocksIssue(ID):
             holding_dict[stock] = int(quantity)
         currentTeam.holding = encode_holdings(holding_dict)
         
-        
-
-        new_stock = Stock(team=team, stock=stock, quantity=quantity)
+        new_stock = Stock(team=team, stock=stock, quantity=quantity, competition_id=ID)
         db.session.add(new_stock)
 
         currentTeam.wallet -= totalPrice
         currentTeam.walletTrend = f"{currentTeam.wallet}"
 
         current_round_prices = {
-        stock.name: stock.rounds[latest_competition.currentRound - latest_competition.numberOfRounds-1].price for stock in latest_competition.stocks
-    }
+            stock.name: stock.rounds[current_competition.currentRound - current_competition.numberOfRounds-1].price 
+            for stock in current_competition.stocks
+        }
         
         for team in latest_teams:               
             holdings = decode_holdings(team.holding)

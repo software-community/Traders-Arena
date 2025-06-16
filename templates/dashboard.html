@@ -75,9 +75,6 @@
     <h1 class="text-4xl text-gray-300 text-center mb-8 font-light">Competition Dashboard</h1>
     <div class="flex justify-center items-center mb-8 gap-4">
       <a href="{{ url_for('stock_admin') }}" class="neumorph-button px-6 py-2.5 text-gray-300 font-medium text-sm">Create New Competition</a>
-      {% if ID %}
-      <a href="{{ url_for('showNews', ID = ID) }}" class="neumorph-button px-6 py-2.5 text-gray-300 font-medium text-sm">Latest Competition News</a>
-      {% endif %}
     </div>
     {% for competition in competitions %}
     <div class="mx-auto w-3/4 neumorph p-6 mb-8">
@@ -94,9 +91,9 @@
               Manage
             </button>
             <div class="dropdown-content">
-              <a href="{{ url_for('stockNews', ID=competition.id) }}" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">News</a>
-              <a href="{{ url_for('results', ID=competition.id) }}" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Results</a>
-              <a href="{{ url_for('addTeam', ID=competition.id) }}" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Teams</a>
+              <a href="{{ url_for('stockNews', ID=competition.id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">News</a>
+              <a href="{{ url_for('results', ID=competition.id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Results</a>
+              <a href="{{ url_for('addTeam', ID=competition.id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Teams</a>
             </div>
           </div>
           <form action="/delete-competition" method="post">

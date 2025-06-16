@@ -3,105 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Issue Stocks to Teams</title>
-    <link rel="stylesheet" href="../static/initialBuying.css">
-    <script>
-        function confirmDeletion(stockId) {
-            if (confirm("Are you sure you want to delete this stock entry?")) {
-                document.getElementById('delete-form-' + stockId).submit();
-            }
+    <title>Stock Transactions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #DCDCDC;
+            font-family: Arial, sans-serif;
         }
-        function validateForm() {
-            const buyerTeam = document.getElementById('buyer_team').value;
-            const sellerTeam = document.getElementById('seller_team').value;
-            if (buyerTeam === sellerTeam) {
-                alert('Buyer team and seller team must be different.');
-                return false;
-            }
-            return true;
+
+        .neumorph {
+            background: #1a1a1a;
+            box-shadow: 8px 8px 16px #0d0d0d,
+                       -8px -8px 16px #272727;
+            border-radius: 15px;
         }
-    </script>
 
+        .neumorph-inset {
+            background: #1a1a1a;
+            box-shadow: inset 4px 4px 8px #0d0d0d,
+                       inset -4px -4px 8px #272727;
+            border-radius: 10px;
+        }
 
+        .neumorph-button {
+            background: #1a1a1a;
+            box-shadow: 4px 4px 8px #0d0d0d,
+                       -4px -4px 8px #272727;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #DCDCDC;
+        }
 
+        .neumorph-button:hover {
+            box-shadow: 2px 2px 4px #0d0d0d,
+                       -2px -2px 4px #272727;
+        }
+
+        .neumorph-button:active {
+            box-shadow: inset 2px 2px 4px #0d0d0d,
+                       inset -2px -2px 4px #272727;
+        }
+
+        .table-container {
+            background: #1a1a1a;
+            box-shadow: inset 4px 4px 8px #0d0d0d,
+                       inset -4px -4px 8px #272727;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .table-header {
+            background: #1a1a1a;
+            box-shadow: 2px 2px 4px #0d0d0d;
+        }
+
+        .table-cell {
+            border-color: #272727;
+        }
+
+        input, select {
+            background: #1a1a1a !important;
+            box-shadow: inset 4px 4px 8px #0d0d0d,
+                       inset -4px -4px 8px #272727;
+            border: none !important;
+            color: #DCDCDC !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            box-shadow: inset 2px 2px 4px #0d0d0d,
+                       inset -2px -2px 4px #272727;
+        }
+
+        .submitbtn {
+            background: #1a1a1a;
+            color: #0ec927;
+            box-shadow: 4px 4px 8px #0d0d0d,
+                       -4px -4px 8px #272727;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .submitbtn:hover {
+            color: #0a9c1d;
+            box-shadow: 2px 2px 4px #0d0d0d,
+                       -2px -2px 4px #272727;
+        }
+
+        #nextRoundButton {
+            position: absolute;
+            top: 5%;
+            right: 3%;
+            padding: 0.75rem 1.5rem;
+            background: #1a1a1a;
+            color: #3b82f6;
+            box-shadow: 4px 4px 8px #0d0d0d,
+                       -4px -4px 8px #272727;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        #nextRoundButton:hover {
+            color: #2563eb;
+            box-shadow: 2px 2px 4px #0d0d0d,
+                       -2px -2px 4px #272727;
+        }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Stock Transactions - Round {{currentRound}}</h1>
-        <form action="{{url_for('transactions', ID = ID)}}" method="post" onsubmit="return validateForm()">
-            <label for="buyer_team">Buyer Team</label>
-            <select id="buyer_team" name="buyer_team" required>
-                <option value="" disabled selected>Select a team</option>
-                {% for team in teams %}
-                    <option value="{{team.teamName}}" data-balance="{{team.wallet}}">{{team.teamName}}</option>
-                {% endfor %}
-            </select>
-            <h6 id= "current_balance1" style="margin-top: 1%;" > Current Balance: Rs 0</h6>
+<body class="min-h-screen py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl text-gray-300 text-center mb-8 font-light">Stock Transactions - Round {{currentRound}}</h1>
+        
+        <div class="neumorph p-8 mb-8">
+            <form action="{{url_for('transactions', ID = ID)}}" method="post" onsubmit="return validateForm()" class="space-y-6">
+                <div>
+                    <label for="buyer_team" class="block text-gray-300 font-light mb-2">Buyer Team</label>
+                    <select id="buyer_team" name="buyer_team" class="w-full px-4 py-2" required>
+                        <option value="" disabled selected>Select a team</option>
+                        {% for team in teams %}
+                            <option value="{{team.teamName}}" data-balance="{{team.wallet}}">{{team.teamName}}</option>
+                        {% endfor %}
+                    </select>
+                    <h6 id="current_balance1" class="text-gray-400 mt-2">Current Balance: Rs 0</h6>
+                </div>
 
-            <label for="seller_team">Seller Team</label>
-            <select id="seller_team" name="seller_team" required>
-                <option value="" disabled selected>Select a team</option>
-                {% for team in teams %}
-                <option value="{{team.teamName}}" data-balance="{{team.wallet}}">{{team.teamName}}</option>
-                {% endfor %}
-            </select>
-            <h6 id= "current_balance2" style="margin-top: 1%;" > Current Balance: Rs 0</h6>
+                <div>
+                    <label for="seller_team" class="block text-gray-300 font-light mb-2">Seller Team</label>
+                    <select id="seller_team" name="seller_team" class="w-full px-4 py-2" required>
+                        <option value="" disabled selected>Select a team</option>
+                        {% for team in teams %}
+                            <option value="{{team.teamName}}" data-balance="{{team.wallet}}">{{team.teamName}}</option>
+                        {% endfor %}
+                    </select>
+                    <h6 id="current_balance2" class="text-gray-400 mt-2">Current Balance: Rs 0</h6>
+                </div>
 
-            
-            <label for="stock">Stock</label>
-            <select id="stock" name="stock" required>
-                <option value="" disabled selected>Select a stock</option>
-                {% for stock in latest_stocks %}
-                <option value="{{stock.name}}">{{stock.name}}</option>
-                {% endfor %}
-            </select>
-            
-            <label for="quantity">Quantity</label>
-            <input type="number" id="quantity" name="quantity" required>
+                <div>
+                    <label for="stock" class="block text-gray-300 font-light mb-2">Stock</label>
+                    <select id="stock" name="stock" class="w-full px-4 py-2" required>
+                        <option value="" disabled selected>Select a stock</option>
+                        {% for stock in latest_stocks %}
+                            <option value="{{stock.name}}">{{stock.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-            <label for="price">Price(per stock)</label>
-            <input type="number" id="price" name="price" required>
-            
-            <input type="submit" value="Submit Transaction">
-        </form>
-    </div>
-    
-    <div class = "history-container" my = 10>
-        <h2>Stock Transactions History</h2>
-        <table id="transactionList">
-            <thead>
-                <tr>
-                    <th scope="col">Round Number</th>
-                    <th scope="col">Buyer</th>
-                    <th scope="col">Seller</th>
-                    <th scope="col">Stock</th>
-                    <th scope="col">Quantity</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Time of Transaction</th>
-                    
-                    
-                </tr>
-            </thead>
-            <tbody>
-                {% for transaction in transactions %}
-                <tr>
-                    <th scope="row">Round {{ transaction.roundOfTransaction }}</td>
-                    <td >{{ transaction.buyer_team }}</th>
-                    <td>{{ transaction.seller_team }}</td>
-                    <td>{{ transaction.stock }}</td>
-                    <td>{{ transaction.quantity }}</td>
-                    <td>{{ transaction.price }}</td>
-                    <td>{{ transaction.timeOfTransaction }}</td>
+                <div>
+                    <label for="quantity" class="block text-gray-300 font-light mb-2">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" class="w-full px-4 py-2" required>
+                </div>
 
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                <div>
+                    <label for="price" class="block text-gray-300 font-light mb-2">Price (per stock)</label>
+                    <input type="number" id="price" name="price" class="w-full px-4 py-2" required>
+                </div>
+
+                <button type="submit" class="submitbtn w-full py-2 font-medium">
+                    Submit Transaction
+                </button>
+            </form>
+        </div>
+
+        <div class="neumorph p-8">
+            <h2 class="text-2xl text-gray-300 mb-6 font-light">Stock Transactions History</h2>
+            <div class="table-container">
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-gray-300 table-header">Round Number</th>
+                            <th class="px-4 py-2 text-gray-300 table-header">Buyer</th>
+                            <th class="px-4 py-2 text-gray-300 table-header">Seller</th>
+                            <th class="px-4 py-2 text-gray-300 table-header">Stock</th>
+                            <th class="px-4 py-2 text-gray-300 table-header">Quantity</th>
+                            <th class="px-4 py-2 text-gray-300 table-header">Price</th>
+                            <th class="px-4 py-2 text-gray-300 table-header">Time of Transaction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td class="px-4 py-2 text-gray-300 table-cell text-center">Round {{ transaction.roundOfTransaction }}</td>
+                            <td class="px-4 py-2 text-gray-300 table-cell text-center">{{ transaction.buyer_team }}</td>
+                            <td class="px-4 py-2 text-gray-300 table-cell text-center">{{ transaction.seller_team }}</td>
+                            <td class="px-4 py-2 text-gray-300 table-cell text-center">{{ transaction.stock }}</td>
+                            <td class="px-4 py-2 text-gray-300 table-cell text-center">{{ transaction.quantity }}</td>
+                            <td class="px-4 py-2 text-gray-300 table-cell text-center">{{ transaction.price }}</td>
+                            <td class="px-4 py-2 text-gray-300 table-cell text-center">{{ transaction.timeOfTransaction }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     {% if user == 'admin' %}
-    <button id ="nextRoundButton" >
-                Next Round
+    <button id="nextRoundButton">
+        Next Round
     </button>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -142,39 +244,35 @@
         });
     </script>
     {% endif %}
-    
-        
-
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-          const ID = 1; // Injecting ID from Flask context
-        });
-        // Get a reference to the buyer team select element
-        const buyerTeamSelect = document.getElementById('buyer_team');
-        const sellerTeamSelect = document.getElementById('seller_team')
-        // Get a reference to the current balance element
-        const currentBalance1 = document.getElementById('current_balance1');
-        const currentBalance2 = document.getElementById('current_balance2');
-    
-        // Add event listener to the buyer team select element
-        buyerTeamSelect.addEventListener('change', function() {
-            // Get the selected option
-            const selectedOption = this.options[this.selectedIndex];
-            // Get the balance from the data attribute of the selected option
-            const balance = selectedOption.dataset.balance;
-            // Update the current balance text
-            currentBalance1.textContent = `Current Balance: Rs ${balance}`;
-        })
+        function validateForm() {
+            const buyerTeam = document.getElementById('buyer_team').value;
+            const sellerTeam = document.getElementById('seller_team').value;
+            if (buyerTeam === sellerTeam) {
+                alert('Buyer team and seller team must be different.');
+                return false;
+            }
+            return true;
+        }
 
-        // Add event listener to the buyer team select element
-        sellerTeamSelect.addEventListener('change', function() {
-            // Get the selected option
-            const selectedOption = this.options[this.selectedIndex];
-            // Get the balance from the data attribute of the selected option
-            const balance = selectedOption.dataset.balance;
-            // Update the current balance text
-            currentBalance2.textContent = `Current Balance: Rs ${balance}`;
+        document.addEventListener("DOMContentLoaded", function() {
+            const buyerTeamSelect = document.getElementById('buyer_team');
+            const sellerTeamSelect = document.getElementById('seller_team');
+            const currentBalance1 = document.getElementById('current_balance1');
+            const currentBalance2 = document.getElementById('current_balance2');
+
+            buyerTeamSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const balance = selectedOption.dataset.balance;
+                currentBalance1.textContent = `Current Balance: Rs ${balance}`;
+            });
+
+            sellerTeamSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const balance = selectedOption.dataset.balance;
+                currentBalance2.textContent = `Current Balance: Rs ${balance}`;
+            });
         });
     </script>
 </body>

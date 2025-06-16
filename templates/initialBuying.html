@@ -4,77 +4,189 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Issue Stocks to Teams</title>
-    <link rel="stylesheet" href="../static/initialBuying.css" />
-    <script>
-      function confirmDeletion(stockId) {
-        if (confirm("Are you sure you want to delete this stock entry?")) {
-          document.getElementById("delete-form-" + stockId).submit();
-        }
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background-color: #1a1a1a;
+        color: #DCDCDC;
+        font-family: Arial, sans-serif;
       }
-    </script>
+
+      .neumorph {
+        background: #1a1a1a;
+        box-shadow: 8px 8px 16px #0d0d0d,
+                   -8px -8px 16px #272727;
+        border-radius: 15px;
+      }
+
+      .neumorph-inset {
+        background: #1a1a1a;
+        box-shadow: inset 4px 4px 8px #0d0d0d,
+                   inset -4px -4px 8px #272727;
+        border-radius: 10px;
+      }
+
+      .neumorph-button {
+        background: #1a1a1a;
+        box-shadow: 4px 4px 8px #0d0d0d,
+                   -4px -4px 8px #272727;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        color: #DCDCDC;
+      }
+
+      .neumorph-button:hover {
+        box-shadow: 2px 2px 4px #0d0d0d,
+                   -2px -2px 4px #272727;
+      }
+
+      .neumorph-button:active {
+        box-shadow: inset 2px 2px 4px #0d0d0d,
+                   inset -2px -2px 4px #272727;
+      }
+
+      .table-container {
+        background: #1a1a1a;
+        box-shadow: inset 4px 4px 8px #0d0d0d,
+                   inset -4px -4px 8px #272727;
+        border-radius: 10px;
+        padding: 1rem;
+      }
+
+      .table-header {
+        background: #1a1a1a;
+        box-shadow: 2px 2px 4px #0d0d0d;
+      }
+
+      .table-cell {
+        border-color: #272727;
+      }
+
+      input, select {
+        background: #1a1a1a !important;
+        box-shadow: inset 4px 4px 8px #0d0d0d,
+                   inset -4px -4px 8px #272727;
+        border: none !important;
+        color: #DCDCDC !important;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      input:focus, select:focus {
+        outline: none;
+        box-shadow: inset 2px 2px 4px #0d0d0d,
+                   inset -2px -2px 4px #272727;
+      }
+
+      .submitbtn {
+        background: #1a1a1a;
+        color: #0ec927;
+        box-shadow: 4px 4px 8px #0d0d0d,
+                   -4px -4px 8px #272727;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .submitbtn:hover {
+        color: #0a9c1d;
+        box-shadow: 2px 2px 4px #0d0d0d,
+                   -2px -2px 4px #272727;
+      }
+
+      #nextRoundButton {
+        position: absolute;
+        top: 5%;
+        right: 3%;
+        padding: 0.75rem 1.5rem;
+        background: #1a1a1a;
+        color: #3b82f6;
+        box-shadow: 4px 4px 8px #0d0d0d,
+                   -4px -4px 8px #272727;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      #nextRoundButton:hover {
+        color: #2563eb;
+        box-shadow: 2px 2px 4px #0d0d0d,
+                   -2px -2px 4px #272727;
+      }
+    </style>
   </head>
-  <body>
-    <div class="container">
-      <h1>Issue Stocks to Teams</h1>
-      <form action="{{ url_for('stocksIssue', ID = ID) }}" method="post">
-        <label for="team">Team</label>
-        <select id="team" name="team" required>
+  <body class="min-h-screen py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-4xl text-gray-300 text-center mb-8 font-light">Issue Stocks to Teams</h1>
+      
+      <div class="neumorph p-8 mb-8">
+        <form action="{{ url_for('stocksIssue', ID = ID) }}" method="post" class="space-y-6">
+          <div>
+            <label for="team" class="block text-gray-300 font-light mb-2">Team</label>
+            <select id="team" name="team" class="w-full px-4 py-2" required>
+              <option value="" disabled selected>Select a team</option>
+              {% for latest_team in latest_teams %}
+              <option value="{{latest_team.teamName}}">{{latest_team.teamName}}</option>
+              {% endfor %}
+            </select>
+          </div>
 
-          <option value="" disabled selected>Select a team</option>
-          {% for latest_team in latest_teams %}
-          <option value="{{latest_team.teamName}}">{{latest_team.teamName}}</option>
-          {% endfor %}
-        </select>
+          <div>
+            <label for="stock" class="block text-gray-300 font-light mb-2">Stock</label>
+            <select id="stock" name="stock" class="w-full px-4 py-2" required>
+              <option value="" disabled selected>Select a stock</option>
+              {% for latest_stock in latest_stocks %}
+              <option value="{{latest_stock.name}}">{{latest_stock.name}}</option>
+              {% endfor %}
+            </select>
+          </div>
 
-        <label for="stock">Stock</label>
-        <select id="stock" name="stock" required>
-          <option value="" disabled selected>Select a stock</option>
-          {% for latest_stock in latest_stocks %}
-          <option value="{{latest_stock.name}}">{{latest_stock.name}}</option>
-          {% endfor %}
-        </select>
+          <div>
+            <label for="quantity" class="block text-gray-300 font-light mb-2">Quantity</label>
+            <input type="number" id="quantity" name="quantity" class="w-full px-4 py-2" required />
+          </div>
 
-        <label for="quantity">Quantity</label>
-        <input type="number" id="quantity" name="quantity" required />
-        <input type="submit" value="Issue Stocks" />
-      </form>
+          <button type="submit" class="submitbtn w-full py-2 font-medium">
+            Issue Stocks
+          </button>
+        </form>
+      </div>
 
-      <h2>Issued Stocks History</h2>
-      <table id="stockList">
-        <thead>
-          <tr>
-            <th scope="col">Team</th>
-            <th scope="col">Stock</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Time Issued</th>
-          
-          </tr>
-        </thead>
-        <tbody>
-          {% for stock in stocks %}
-          <tr>
-            <th scope="row">{{ stock.team }}</th>
-            <td>{{ stock.stock }}</td>
-            <td>{{ stock.quantity }}</td>
-            <td>{{ stock.timeIssued }}</td>
-
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
+      <div class="neumorph p-8">
+        <h2 class="text-2xl text-gray-300 mb-6 font-light">Issued Stocks History</h2>
+        <div class="table-container">
+          <table class="w-full">
+            <thead>
+              <tr>
+                <th class="px-4 py-2 text-gray-300 table-header">Team</th>
+                <th class="px-4 py-2 text-gray-300 table-header">Stock</th>
+                <th class="px-4 py-2 text-gray-300 table-header">Quantity</th>
+                <th class="px-4 py-2 text-gray-300 table-header">Time Issued</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for stock in stocks %}
+              <tr>
+                <td class="px-4 py-2 text-gray-300 table-cell text-center">{{ stock.team }}</td>
+                <td class="px-4 py-2 text-gray-300 table-cell text-center">{{ stock.stock }}</td>
+                <td class="px-4 py-2 text-gray-300 table-cell text-center">{{ stock.quantity }}</td>
+                <td class="px-4 py-2 text-gray-300 table-cell text-center">{{ stock.timeIssued }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <button id = "nextRoundButton" type = "submit">
+
+    <button id="nextRoundButton" type="submit">
       Proceed to Round 1
     </button>
 
-    
     <script>
       document.getElementById("nextRoundButton").addEventListener("click", function () {
-        const ID = {{ID}}
-        window.location.href = "/tradingPage/"+ID;
+        const competitionId = {{ ID }};
+        window.location.href = "/tradingPage/" + competitionId;
       });
-  </script>
-
+    </script>
   </body>
 </html>

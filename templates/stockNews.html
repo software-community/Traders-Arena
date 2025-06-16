@@ -5,10 +5,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=0.85" />
   <title>Stock News</title>
-  <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <style>
+    body {
+      background-color: #1a1a1a;
+      color: #DCDCDC;
+      font-family: Arial, sans-serif;
+    }
+
+    .neumorph {
+      background: #1a1a1a;
+      box-shadow: 8px 8px 16px #0d0d0d,
+                 -8px -8px 16px #272727;
+      border-radius: 15px;
+    }
+
+    .neumorph-inset {
+      background: #1a1a1a;
+      box-shadow: inset 4px 4px 8px #0d0d0d,
+                 inset -4px -4px 8px #272727;
+      border-radius: 10px;
+    }
+
+    .neumorph-button {
+      background: #1a1a1a;
+      box-shadow: 4px 4px 8px #0d0d0d,
+                 -4px -4px 8px #272727;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      color: #DCDCDC;
+    }
+
+    .neumorph-button:hover {
+      box-shadow: 2px 2px 4px #0d0d0d,
+                 -2px -2px 4px #272727;
+    }
+
+    .neumorph-button:active {
+      box-shadow: inset 2px 2px 4px #0d0d0d,
+                 inset -2px -2px 4px #272727;
+    }
+
     .top-buttons {
       display: flex;
       justify-content: space-between;
@@ -16,6 +53,7 @@
       width: 100%;
       padding: 1rem;
       box-sizing: border-box;
+      z-index: 10;
     }
 
     .button {
@@ -23,31 +61,86 @@
       padding: 0.5rem 1rem;
       font-size: 1rem;
       font-weight: bold;
-      color: white;
-      border-radius: 0.5rem;
+      border-radius: 8px;
       text-align: center;
+      transition: all 0.3s ease;
     }
 
     .left-button {
-      background-color: #38a169; /* Green */
+      background: #1a1a1a;
+      box-shadow: 4px 4px 8px #0d0d0d,
+                 -4px -4px 8px #272727;
+      color: #0ec927;
     }
 
     .right-button {
-      background-color: #e53e3e; /* Red */
+      background: #1a1a1a;
+      box-shadow: 4px 4px 8px #0d0d0d,
+                 -4px -4px 8px #272727;
+      color: #3b82f6;
       margin-left: auto;
     }
 
     .left-button:hover {
-      background-color: #2f855a; /* Darker green */
+      box-shadow: 2px 2px 4px #0d0d0d,
+                 -2px -2px 4px #272727;
+      color: #0a9c1d;
     }
 
     .right-button:hover {
-      background-color: #c53030; /* Darker red */
+      box-shadow: 2px 2px 4px #0d0d0d,
+                 -2px -2px 4px #272727;
+      color: #2563eb;
     }
 
     .error {
       color: #e53e3e;
       font-size: 0.875rem;
+    }
+
+    input, select, textarea {
+      background: #1a1a1a !important;
+      box-shadow: inset 4px 4px 8px #0d0d0d,
+                 inset -4px -4px 8px #272727;
+      border: none !important;
+      color: #DCDCDC !important;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      box-shadow: inset 2px 2px 4px #0d0d0d,
+                 inset -2px -2px 4px #272727;
+    }
+
+    .filebutton {
+      background: #1a1a1a !important;
+      box-shadow: inset 4px 4px 8px #0d0d0d,
+                 inset -4px -4px 8px #272727;
+      border: none !important;
+      color: #DCDCDC !important;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .filebutton:hover {
+      box-shadow: inset 2px 2px 4px #0d0d0d,
+                 inset -2px -2px 4px #272727;
+    }
+
+    .filebutton::file-selector-button {
+      background: #1a1a1a;
+      color: #0ec927;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .filebutton::file-selector-button:hover {
+      color: #0a9c1d;
     }
   </style>
 </head>
@@ -66,42 +159,36 @@
 
   <div class="main">
     <div class="formpage mt-8 mb-5 px-8">
-      <form id="form" action="/stockNews/{{ ID }}" method="POST" enctype="multipart/form-data">
-        <h2 style="
-              text-align: center;
-              color: #dcdcdc;
-              font-size: 1.7rem;
-              font-weight: 550;
-            " class="mt-4">
+      <form id="form" action="/stockNews/{{ ID }}" method="POST" enctype="multipart/form-data" class="p-8">
+        <h2 class="text-2xl text-gray-300 text-center mb-8 font-light">
           News & Events
         </h2>
         <div>
-          <div class="mb-3 pb-2">
-            <label for="title">Title: <span class="error" id="title-error" style="display:none;">This field is required.</span></label>
-            <br />
+          <div class="mb-6">
+            <label for="title" class="block text-gray-300 font-light mb-2">Title: <span class="error" id="title-error" style="display:none;">This field is required.</span></label>
             <input
-              class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
+              class="w-full px-4 py-2"
               type="text" id="title" name="title" required />
           </div>
 
-          <div class="mb-3 pb-2">
-            <label for="content">Content: <span class="error" id="content-error" style="display:none;">This field is required.</span></label>
+          <div class="mb-6">
+            <label for="content" class="block text-gray-300 font-light mb-2">Content: <span class="error" id="content-error" style="display:none;">This field is required.</span></label>
             <textarea
-              class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
+              class="w-full px-4 py-2"
               rows="8" cols="30" type="text" id="content" name="content" required></textarea>
           </div>
 
-          <div class="mb-3 pb-2">
-            <label for="image">Upload Image: <span class="error" id="image-error" style="display:none;">This field is required.</span></label>
+          <div class="mb-6">
+            <label for="image" class="block text-gray-300 font-light mb-2">Upload Image: <span class="error" id="image-error" style="display:none;">This field is required.</span></label>
             <input
-              class="filebutton block w-11/12 text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 bg-gray-900 shadow appearance-none border rounded-lg custom-input leading-tight focus:outline-none focus:shadow-outline"
+              class="filebutton block w-full text-sm"
               type="file" name="image" id="image" accept="image/*" required />
           </div>
 
-          <div class="mb-3 pb-2">
-            <label for="round">Round No: <span class="error" id="round-error" style="display:none;">This field is required.</span></label>
+          <div class="mb-6">
+            <label for="round" class="block text-gray-300 font-light mb-2">Round No: <span class="error" id="round-error" style="display:none;">This field is required.</span></label>
             <select
-              class="bg-gray-900 shadow appearance-none border rounded-lg w-11/12 py-2 px-3 custom-input leading-tight focus:outline-none focus:shadow-outline"
+              class="w-full px-4 py-2"
               id="round" name="round" required>
               <option value="" disabled selected>Select a round</option>
               {% for round in rounds %}
@@ -111,7 +198,7 @@
           </div>
 
           <button id="addEvent"
-            class="newBtn mb-8 w-11/12 bg-red-700 hover:bg-red-800 text-white font-bold py-1 rounded-lg focus:outline-none focus:shadow-outline">
+            class="neumorph-button w-full py-2 text-gray-300 font-medium">
             Add Event
           </button>
         </div>
@@ -123,7 +210,7 @@
 
   <script>
     document.getElementById("addEvent").addEventListener("click", function (event) {
-      event.preventDefault(); // Prevent default form submission
+      event.preventDefault();
 
       let valid = true;
       
@@ -174,12 +261,10 @@
     });
 
     document.getElementById("submit").addEventListener("click", function () {
-      const ID = {{ ID }};
-      window.location.href = "/addTeam/" + ID;
+      const competitionId = {{ ID }};
+      window.location.href = "/addTeam/" + competitionId;
     });
   </script>
-
-  <script src="../static/app.js"></script>
 </body>
 
 </html>

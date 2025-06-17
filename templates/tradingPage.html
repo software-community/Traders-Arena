@@ -114,12 +114,33 @@
         }
     </style>
 </head>
-<body class="min-h-screen py-8 px-4">
+<body class="min-h-screen py-8 px-4 relative" onload="checkFlashMessages()">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-4xl text-gray-300 text-center mb-8 font-light">Stock Transactions - Round {{currentRound}}</h1>
+        <h1 class="text-4xl text-gray-300 text-center mb-8 font-light">
+            Stock Transactions - Round {{currentRound}} {% if numberOfRounds %}of {{numberOfRounds}}{% endif %}
+            {% if currentRound == numberOfRounds %}
+                <span class="text-yellow-400 block text-lg mt-2">🏁 FINAL ROUND 🏁</span>
+            {% endif %}
+        </h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="fixed top-5 left-1/2 transform -translate-x-1/2 p-4 rounded-lg {% if category == 'success' %}bg-green-800/30 text-green-300{% else %}bg-red-800/30 text-red-300{% endif %} shadow-lg z-50" id="flash-message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    
+        {% if error %}
+            <div class="bg-red-800/30 text-red-300 p-4 mb-6 rounded-lg">
+                Error: {{ error }}
+            </div>
+        {% endif %}
         
         <div class="neumorph p-8 mb-8">
-            <form action="{{url_for('transactions', ID = ID)}}" method="post" onsubmit="return validateForm()" class="space-y-6">
+            <form action="/tradingPage/{{ ID }}" method="post" onsubmit="return validateForm()" class="space-y-6">
                 <div>
                     <label for="buyer_team" class="block text-gray-300 font-light mb-2">Buyer Team</label>
                     <select id="buyer_team" name="buyer_team" class="w-full px-4 py-2" required>
@@ -202,50 +223,101 @@
     </div>
 
     {% if user == 'admin' %}
-    <button id="nextRoundButton">
-        Next Round
-    </button>
+    <div class="fixed top-5 right-5 flex space-x-4">
+        {% if currentRound <= numberOfRounds %}
+        <button id="nextRoundButton" class="neumorph-button px-6 py-3 font-medium text-blue-400">
+            {% if currentRound == numberOfRounds %}
+                Finish Competition
+            {% else %}
+                Next Round
+            {% endif %}
+        </button>
+        {% else %}
+        <button id="resultsButton" class="neumorph-button px-6 py-3 font-medium text-green-400">
+            Go to Results
+        </button>
+        {% endif %}
+</edits>
+    </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("nextRoundButton").addEventListener("click", function() {
-                fetch('/updateNext', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }).then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => { throw new Error(text) });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.message) {
-                        if (data.message === "Competition Over") {
-                            alert("Competition Over! Redirecting to results...");
-                            if (data.redirect) {
-                                window.location.href = data.redirect;
-                            } else {
-                                window.location.href = `/results/${ID}`;
-                            }
-                        } else {
-                            alert(data.message);
-                            window.location.reload();
-                        }
+            const nextRoundButton = document.getElementById("nextRoundButton");
+            const resultsButton = document.getElementById("resultsButton");
+            
+            console.log("Page loaded - Current Round: {{ currentRound }}, Total Rounds: {{ numberOfRounds }}");
+            console.log("Next Round Button found:", nextRoundButton);
+            console.log("Results Button found:", resultsButton);
+            
+            if (nextRoundButton) {
+                console.log("Adding event listener to next round button");
+                nextRoundButton.addEventListener("click", function(event) {
+                    event.preventDefault();
+                    console.log("Next round button clicked!");
+                    
+                    // Disable button to prevent double-clicks
+                    nextRoundButton.disabled = true;
+                    nextRoundButton.innerText = "Processing...";
+                    
+                    // Create a form and submit it directly instead of using fetch
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    
+                    // Check if this is final round (completion) or regular next round
+                    const currentRound = {{ currentRound }};
+                    const totalRounds = {{ numberOfRounds }};
+                    
+                    if (currentRound === totalRounds) {
+                        // Final round - use completion endpoint
+                        form.action = '/completeCompetition';
+                        console.log("Submitting form to /completeCompetition");
                     } else {
-                        alert("An error occurred: " + (data.error || "Unknown error"));
+                        // Regular round - use next round endpoint
+                        form.action = '/updateNext';
+                        console.log("Submitting form to /updateNext");
                     }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("An error occurred: " + error.message);
+                    
+                    // Add the competition_id as a hidden field
+                    const hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = 'competition_id';
+                    hiddenField.value = "{{ ID }}";
+                    form.appendChild(hiddenField);
+                    
+                    console.log("Competition ID:", "{{ ID }}");
+                    
+                    // Add form to the document and submit it
+                    document.body.appendChild(form);
+                    form.submit();
                 });
-            });
+            } else {
+                console.log("Next round button not found!");
+            }
+            
+            if (resultsButton) {
+                resultsButton.addEventListener("click", function() {
+                    console.log("Results button clicked!");
+                    window.location.href = `/results/{{ ID }}`;
+                });
+            }
         });
     </script>
     {% endif %}
 
     <script>
+        // Auto-hide flash messages after 5 seconds
+        function checkFlashMessages() {
+            const flashMessage = document.getElementById('flash-message');
+            if (flashMessage) {
+                setTimeout(function() {
+                    flashMessage.style.opacity = '0';
+                    flashMessage.style.transition = 'opacity 1s';
+                    setTimeout(function() {
+                        flashMessage.remove();
+                    }, 1000);
+                }, 5000);
+            }
+        }
+        
         function validateForm() {
             const buyerTeam = document.getElementById('buyer_team').value;
             const sellerTeam = document.getElementById('seller_team').value;

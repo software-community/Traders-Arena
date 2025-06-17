@@ -12,7 +12,7 @@
 <body class="py-8 px-4">
     <div class="max-w-7xl mx-auto">
         <div class="flex justify-between items-center mb-8">
-            <a href="{{ url_for('stockNews', ID = ID) }}" class="neumorph-button px-6 py-2.5 text-gray-300 font-medium text-sm">Update the News</a>
+            <a href="/stockNews/{{ ID }}" class="neumorph-button px-6 py-2.5 text-gray-300 font-medium text-sm">Add/Update News</a>
             <h1 class="text-4xl text-white font-light">NEWS SECTION</h1>
             <select id="round-select" onchange="changeRound()" class="neumorph-button px-6 py-2.5 text-gray-300 font-medium text-sm">
                 {% for round_num in range(1, total_rounds + 1) %}
@@ -74,8 +74,8 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="px-4 py-2 text-gray-300 table-cell text-center">${stockName}</td>
-                    <td class="px-4 py-2 text-gray-300 table-cell text-center">$${currentRow.toFixed(2)}</td>
-                    <td class="px-4 py-2 text-gray-300 table-cell text-center">${typeof previousRow === 'number' ? '$' + previousRow.toFixed(2) : previousRow}</td>
+                    <td class="px-4 py-2 text-gray-300 table-cell text-center">₹${currentRow.toFixed(2)}</td>
+                    <td class="px-4 py-2 text-gray-300 table-cell text-center">${typeof previousRow === 'number' ? '₹' + previousRow.toFixed(2) : previousRow}</td>
                 `;
                 tableBody.appendChild(tr);
             }
@@ -90,7 +90,7 @@
         function changeRound() {
             const roundSelect = document.getElementById('round-select');
             const selectedRound = parseInt(roundSelect.value);
-            window.location.href = `/round/{{ ID }}/${selectedRound}`;
+            window.location.href = "/showNews/{{ ID }}?round=" + selectedRound;
         }
     </script>
 </body>

@@ -114,12 +114,17 @@
       }
     </style>
   </head>
-  <body class="min-h-screen py-8 px-4">
+  <body class="min-h-screen py-8 px-4 relative" onload="checkButtonVisibility()">
     <div class="max-w-4xl mx-auto">
       <h1 class="text-4xl text-gray-300 text-center mb-8 font-light">Issue Stocks to Teams</h1>
       
       <div class="neumorph p-8 mb-8">
-        <form action="{{ url_for('stocksIssue', ID = ID) }}" method="post" class="space-y-6">
+        {% if error %}
+        <div class="bg-red-800/30 text-red-300 p-4 mb-6 rounded-lg">
+          Error: {{ error }}
+        </div>
+        {% endif %}
+        <form action="/initialBuying/{{ ID }}" method="post" class="space-y-6">
           <div>
             <label for="team" class="block text-gray-300 font-light mb-2">Team</label>
             <select id="team" name="team" class="w-full px-4 py-2" required>
@@ -178,13 +183,29 @@
       </div>
     </div>
 
-    <button id="nextRoundButton" type="submit">
-      Proceed to Round 1
+    <button id="nextRoundButton" type="button" class="neumorph-button px-6 py-3 font-medium text-blue-400">
+      Proceed to Trading Page
     </button>
 
     <script>
+      // Check if there are any issued stocks to determine button visibility
+      function checkButtonVisibility() {
+        const tableBody = document.querySelector("tbody");
+        const rowCount = tableBody ? tableBody.getElementsByTagName("tr").length : 0;
+        const nextRoundButton = document.getElementById("nextRoundButton");
+        
+        if (rowCount === 0) {
+          // Hide button if no stocks have been issued
+          nextRoundButton.style.display = "none";
+        } else {
+          // Show button if stocks have been issued
+          nextRoundButton.style.display = "block";
+        }
+      }
+      
       document.getElementById("nextRoundButton").addEventListener("click", function () {
-        const competitionId = {{ ID }};
+        const competitionId = "{{ ID }}";
+        // Use direct URL navigation to avoid routing issues
         window.location.href = "/tradingPage/" + competitionId;
       });
     </script>

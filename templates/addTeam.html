@@ -97,7 +97,7 @@
             <button
               class="removeteam text-base font-bold py-0 px-2 focus:outline-none focus:shadow-outline"
               type="button"
-              onclick="removeTeam('{{ team.teamID }}')"
+              onclick="removeTeam('{{ team._id }}')"
             >
               Remove
             </button>
@@ -106,7 +106,7 @@
         </ol>
       </div>
       <form
-        action="{{ url_for('addTeam', ID = ID) }}"
+        action="{{ url_for('add_team', competition_id = ID) }}"
         method="POST"
         class="space-y-6 mt-8"
         style="width:100%"
@@ -148,7 +148,7 @@
           </button>
           <a
             class="backbtn font-bold py-2 px-4 focus:outline-none focus:shadow-outline neumorph-button"
-            href="{{ url_for('stocksIssue', ID = ID) }}"
+            href="/initialBuying/{{ ID }}"
           >
             Begin the Session
           </a>

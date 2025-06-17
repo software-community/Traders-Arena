@@ -72,7 +72,11 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                 <div class="neumorph-inset p-4 flex flex-col items-center">
                     <h3 class="text-gray-400 text-xs sm:text-sm mb-2">Current Round</h3>
-                    <p class="text-gray-300 text-lg sm:text-xl">{{ competition.currentRound }} / {{ competition.numberOfRounds }}</p>
+                    {% if competition.currentRound > competition.numberOfRounds %}
+                        <p class="text-green-400 text-lg sm:text-xl">Competition Complete!</p>
+                    {% else %}
+                        <p class="text-gray-300 text-lg sm:text-xl">{{ competition.currentRound }} / {{ competition.numberOfRounds }}</p>
+                    {% endif %}
                 </div>
                 <div class="neumorph-inset p-4 flex flex-col items-center">
                     <h3 class="text-gray-400 text-xs sm:text-sm mb-2">Wallet Balance</h3>
@@ -104,10 +108,10 @@
                             <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">{{ stock }}</td>
                             <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">{{ quantity }}</td>
                             <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">
-                                ₹{{ "%.2f"|format(current_round_prices[stock]) }}
+                                ₹{{ "%.2f"|format(current_prices[stock]) }}
                             </td>
                             <td class="px-2 sm:px-4 py-2 text-gray-300 table-cell text-center">
-                                ₹{{ "%.2f"|format(quantity * current_round_prices[stock]) }}
+                                ₹{{ "%.2f"|format(quantity * current_prices[stock]) }}
                             </td>
                         </tr>
                         {% endfor %}
@@ -116,9 +120,21 @@
             </div>
         </div>
 
+        <!-- Competition Over Message -->
+        {% if competition_over %}
+        <div class="neumorph p-4 sm:p-6 mb-8 text-center">
+            <h2 class="text-xl sm:text-2xl text-green-400 font-light mb-4">🎉 Competition Complete! 🎉</h2>
+            <p class="text-gray-300 mb-4">All rounds have been completed. Check out the final results!</p>
+            <a href="/results/{{ competition._id }}" class="neumorph-button px-6 py-3 text-green-400 font-medium">
+                View Final Results
+            </a>
+        </div>
+        {% endif %}
+
         <!-- Recent Transactions -->
         <div class="neumorph p-4 sm:p-6">
             <h2 class="text-xl sm:text-2xl text-gray-300 font-light mb-4">Recent Transactions</h2>
+</edits>
             <div class="table-container">
                 <table class="w-full min-w-[500px] text-xs sm:text-sm">
                     <thead>

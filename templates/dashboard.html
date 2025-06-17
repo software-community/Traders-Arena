@@ -91,18 +91,18 @@
               Manage
             </button>
             <div class="dropdown-content">
-              <a href="{{ url_for('stockNews', ID=competition.id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">News</a>
-              <a href="{{ url_for('results', ID=competition.id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Results</a>
-              <a href="{{ url_for('addTeam', ID=competition.id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Teams</a>
-              <a href="{{ url_for('transactions', ID=competition.id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Trading Page</a>
-              <a href="{{ url_for('round', ID=competition.id, round_number=1) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Stock Pricing</a>
+              <a href="{{ url_for('stockNews', competition_id=competition._id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">News</a>
+              <a href="{{ url_for('results', competition_id=competition._id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Results</a>
+              <a href="{{ url_for('add_team', competition_id=competition._id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Teams</a>
+              <a href="{{ url_for('transactions', competition_id=competition._id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Trading Page</a>
+              <a href="{{ url_for('showNews', competition_id=competition._id) }}" target="_blank" class="block px-4 py-2 text-gray-300 hover:text-white transition-colors">Stock Pricing</a>
             </div>
           </div>
           <form action="/delete-competition" method="post">
             <input
               type="hidden"
               name="keyToDelete"
-              value="{{ competition.id }}"
+              value="{{ competition._id }}"
             />
             <button
               type="submit"

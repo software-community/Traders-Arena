@@ -170,19 +170,20 @@
         </button>
       </div>
 
-      <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6 hidden opacity-0">
+      <div id="resultsContainer" class="flex flex-col items-center gap-10 hidden opacity-0">
         {% for name, value in rankings.items() %}
-        <div class="results-card p-6 text-center">
-          <img
-            src="{{ url_for('static', filename= 'rankings/' ~ loop.index ~ '.png') }}"
-            alt="{{ loop.index }} Badge"
-            class="badge"
-          />
-          <h2 class="text-xl text-gray-300 mb-4">{{ name }}</h2>
-          <h1 class="text-2xl text-gray-300 font-light mb-6">
-            &#x20b9; {{ netWorth[name]|last}}
-          </h1>
-          <div id="result {{ name }}" class="flex justify-center items-center h-48">
+        <div class="results-card p-8 text-center w-full max-w-xl mx-auto flex flex-col items-center relative">
+          <div class="flex flex-row items-center justify-center w-full mb-4 gap-4">
+            <img
+              src="{{ url_for('static', filename= 'rankings/' ~ loop.index ~ '.png') }}"
+              alt="{{ loop.index }} Badge"
+              class="badge-static"
+              style="position: static; width: 3.5rem; height: 3.5rem; filter: drop-shadow(4px 4px 8px #0d0d0d);"
+            />
+            <h2 class="text-2xl text-gray-300 font-semibold text-left">{{ loop.index }}. {{ name }}</h2>
+          </div>
+          <h1 class="text-3xl text-green-400 font-bold mb-6">&#x20b9; {{ netWorth[name]|last}}</h1>
+          <div id="result {{ name }}" class="flex justify-center items-center h-48 w-full">
             <canvas
               class="chart-canvas w-full h-full"
               height="160"

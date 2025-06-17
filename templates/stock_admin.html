@@ -105,7 +105,7 @@
   <div class="max-w-4xl mx-auto">
     <h1 class="text-4xl text-gray-300 text-center mb-8 font-light">Stock Trading Competition Setup</h1>
     
-    <form id="competitionForm" class="neumorph p-8">
+    <form id="competitionForm" class="neumorph p-8" enctype="multipart/form-data">
       <!-- Competition Name Entry Field -->
       <div class="mb-6">
         <label for="competitionName" class="block text-gray-300 font-light mb-2">Competition Name:</label>
@@ -171,23 +171,92 @@
     document.getElementById("competitionForm").addEventListener("submit", function(event) {
       event.preventDefault();
 
-      const formData = new FormData(document.getElementById("competitionForm"));
+      // Collect all form data manually to ensure dynamic fields are included
+      const formData = new FormData();
+      
+      // Add basic form fields
+      const competitionName = document.getElementById('competitionName').value.trim();
+      const rounds = document.getElementById('rounds').value.trim();
+      const walletSize = document.getElementById('walletSize').value.trim();
+      
+      formData.append('competitionName', competitionName);
+      formData.append('rounds', rounds);
+      formData.append('walletSize', walletSize);
+      
+      // Validate basic fields
+      if (!competitionName || !rounds || !walletSize) {
+        alert('Please fill in all required fields (Competition Name, Number of Rounds, Wallet Size)');
+        return;
+      }
+      
+      // Collect all stock names and prices from dynamic fields
+      const stockNameInputs = document.querySelectorAll('input[name="stockName"]');
+      const priceInputs = document.querySelectorAll('input[name="price"]');
+      
+      let validStocks = 0;
+      stockNameInputs.forEach((input, index) => {
+        if (input.value.trim() && priceInputs[index] && priceInputs[index].value.trim()) {
+          formData.append('stockName', input.value.trim());
+          formData.append('price', priceInputs[index].value);
+          validStocks++;
+        }
+      });
+      
+      if (validStocks === 0) {
+        alert('Please add at least one stock with both name and price');
+        return;
+      }
+      
+      // Collect all round prices
+      const roundInputs = document.querySelectorAll('input[name^="round-"]');
+      let hasRoundPrices = false;
+      roundInputs.forEach(input => {
+        if (input.value.trim()) {
+          formData.append(input.name, input.value);
+          hasRoundPrices = true;
+        }
+      });
+      
+      if (!hasRoundPrices) {
+        alert('Please enter closing prices for all rounds. Click "Enter" after setting the number of rounds.');
+        return;
+      }
+
+      // Show loading state
+      const submitButton = document.getElementById('submit');
+      const originalText = submitButton.innerHTML;
+      submitButton.innerHTML = 'Submitting...';
+      submitButton.disabled = true;
 
       fetch('/stock_admin', {
         method: 'POST',
         body: formData
       })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(data => {
+            throw new Error(data.error || 'Server error');
+          });
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.error) {
           alert(data.error);
           return;
         }
         const competitionId = data.id;
+        // alert('Competition created successfully! Redirecting to news page...');
         window.location.href = `/stockNews/${competitionId}`;
       })
       .catch(error => {
         console.error('Error:', error);
+        alert('Error: ' + error.message);
+      })
+      .finally(() => {
+        // Restore button state
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
       });
     });
   </script>

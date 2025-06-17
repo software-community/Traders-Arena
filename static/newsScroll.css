@@ -7,8 +7,64 @@
 }
 
 body {
-    background-color: #121212;
-    color: #E0E0E0;
+    background-color: #1a1a1a;
+    color: #DCDCDC;
+    font-family: Arial, sans-serif;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.neumorph {
+    background: #1a1a1a;
+    box-shadow: 8px 8px 16px #0d0d0d,
+                -8px -8px 16px #272727;
+    border-radius: 15px;
+}
+
+.neumorph-inset {
+    background: #1a1a1a;
+    box-shadow: inset 4px 4px 8px #0d0d0d,
+                inset -4px -4px 8px #272727;
+    border-radius: 10px;
+}
+
+.neumorph-button {
+    background: #1a1a1a;
+    box-shadow: 4px 4px 8px #0d0d0d,
+                -4px -4px 8px #272727;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    color: #DCDCDC;
+}
+
+.neumorph-button:hover {
+    box-shadow: 2px 2px 4px #0d0d0d,
+                -2px -2px 4px #272727;
+}
+
+.neumorph-button:active {
+    box-shadow: inset 2px 2px 4px #0d0d0d,
+                inset -2px -2px 4px #272727;
+}
+
+input, select, textarea {
+    background: #1a1a1a !important;
+    box-shadow: inset 4px 4px 8px #0d0d0d,
+                inset -4px -4px 8px #272727;
+    border: none !important;
+    color: #DCDCDC !important;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    box-shadow: inset 2px 2px 4px #0d0d0d,
+                inset -2px -2px 4px #272727;
 }
 
 /* Header styles */
@@ -20,10 +76,6 @@ header {
     z-index: 2;
     background-color: #1F1F1F;
 }
-
-
-
-
 
 #logo {
     background-color: #333;
@@ -84,7 +136,6 @@ header {
     background-color: #4A5568;
 }
 
-
 /* Slider styles */
 .slider {
     margin: 8vh 12vw;
@@ -128,9 +179,6 @@ header {
     right: 0;
 }
 
-
-
-
 .dotsbox {
     position: absolute;
     left: 50%;
@@ -157,20 +205,18 @@ header {
 
 /* Fade animation for slides */
 .fade {
-    -webkit-animation-name: fade;
-    -webkit-animation-duration: 1.5s;
     animation-name: fade;
-    animation-duration: 1.5s;
-}
-
-@-webkit-keyframes fade {
-    from {opacity: 0.8}
-    to {opacity: 1}
+    animation-duration: 2s;
 }
 
 @keyframes fade {
-    from {opacity: 0.8}
-    to {opacity: 1}
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Text styles */
@@ -194,9 +240,6 @@ header {
     z-index: 1;
 }
 
-
-
-
 .txt h1 {
     color: #FFFFFF; /* white */
     font-size: 1.8rem;
@@ -209,37 +252,9 @@ header {
 
 /* Image zoom animation */
 img {
-    transform: scale(1.5, 1.5);
-    -webkit-animation-name: zoomin;
-    -webkit-animation-duration: 40s;
-    animation-name: zoomin;
-    animation-duration: 40s;
-}
-
-@-webkit-keyframes zoomin {
-    from {transform: scale(1, 1);}
-    to {transform: scale(1.5, 1.5);}
-}
-
-@keyframes zoomin {
-    from {transform: scale(1, 1);}
-    to {transform: scale(1.5, 1.5);}
-}
-
-
-.fade {
-    animation-name: fade;
-    animation-duration: 2s;
-}
-
-@keyframes fade {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 
 .bg-primary {
@@ -378,6 +393,15 @@ body {
 width: 100%;
 height: 100%;
 object-fit: cover;
+}
+
+.content-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
 }
 
 

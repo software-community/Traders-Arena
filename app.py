@@ -176,13 +176,20 @@ def stock_admin():
     if session.get('logged_in') != True:
             return redirect("/login")
     if request.method == "POST":
+        print("Received POST request to stock_admin")
+        print("Form data:", request.form)
+        
         competitionName = request.form.get("competitionName")
         # Check for duplicate competition name
         existing = Competition.query.filter_by(competitionName=competitionName).first()
         if existing:
             return jsonify({'error': 'Competition name already exists. Please choose a different name.'}), 400
+        
         numberOfRounds = int(request.form.get("rounds"))
         walletSize = float(request.form.get("walletSize"))
+        
+        print(f"Competition: {competitionName}, Rounds: {numberOfRounds}, Wallet: {walletSize}")
+        
         new_competition = Competition(
             competitionName=competitionName,
             numberOfRounds=numberOfRounds,
@@ -193,9 +200,13 @@ def stock_admin():
         db.session.commit()
 
         competition_id = new_competition.id
+        print(f"Created competition with ID: {competition_id}")
 
         stockNames = request.form.getlist("stockName")
         initialPriceList = request.form.getlist("price")
+        
+        print(f"Stock names: {stockNames}")
+        print(f"Initial prices: {initialPriceList}")
 
         for i in range(len(stockNames)):
             stock_name = stockNames[i]
@@ -214,6 +225,8 @@ def stock_admin():
             stock_name_id = new_stock_name.id
 
             round_prices = request.form.getlist(f"round-{stockNames[i]}")
+            print(f"Round prices for {stock_name}: {round_prices}")
+            
             for round_number in range(len(round_prices)):
                 price = float(round_prices[round_number])
 
@@ -226,6 +239,7 @@ def stock_admin():
                 db.session.add(new_round)
 
         db.session.commit()
+        print("Successfully created competition and all related data")
 
         return jsonify({'id': competition_id})
     competitions = Competition.query.all()  # Order by id in descending order
@@ -626,17 +640,36 @@ def stockNews(ID):
         title = request.form.get("title")
         roundNumber = request.form.get("round")
         content = request.form.get("content")
-        image_file = request.files['image']  # Get uploaded image file
+        image_file = request.files.get('image')  # Use .get() for safety
+
+        # Check if a news event already exists for this round in this competition
+        existing_news = StockNews.query.filter_by(
+            competition_id=ID,
+            roundNumber=roundNumber
+        ).first()
+
         image_data = image_file.read() if image_file else None  # Read image data
 
-        newNews = StockNews(
-            title=title,
-            roundNumber=roundNumber,
-            content=content,
-            image=image_data,  # Save image data to the database
-        )
-        db.session.add(newNews)
-        db.session.commit()
+        if existing_news:
+            # Update existing news event
+            existing_news.title = title
+            existing_news.content = content
+            if image_data:
+                existing_news.image = image_data
+            db.session.commit()
+            print(f"Updated news for competition {ID}, round {roundNumber}")
+        else:
+            # Create new news event
+            newNews = StockNews(
+                title=title,
+                roundNumber=roundNumber,
+                content=content,
+                image=image_data,
+                competition_id=ID # Ensure competition_id is set for new entries
+            )
+            db.session.add(newNews)
+            db.session.commit()
+            print(f"Created new news for competition {ID}, round {roundNumber}")
 
         return redirect(url_for("stockNews", ID=ID))
     
@@ -683,30 +716,58 @@ def stock_data(ID):
 def showNews(ID):
     if session.get('logged_in') != True:
             return redirect("/login")
-    latest_competition = Competition.query.order_by(desc(Competition.id)).first()
-    if latest_competition:
-            ID = latest_competition.id
-    else:
-            ID = None
+    
+    current_competition = Competition.query.get(ID)
+    if not current_competition:
+        # Handle case where competition ID from URL is invalid
+        return redirect("/dashboard") # Or an appropriate error page
+
     round_number = "1"  # Default round
     stock_data_round = get_stock_data_for_round(round_number, ID)
-    return render_template('newsScroll.html', slides=slides(ID)[round_number], rounds=slides(ID).keys(), current_round=round_number, stock_data=stock_data_round, ID = ID)
+    previous_stock_data = get_stock_data_for_previous_round(round_number, ID)
+
+    return render_template('newsScroll.html', slides=slides(ID), rounds=current_competition.numberOfRounds, current_round=round_number, stock_data=stock_data_round, ID=ID, total_rounds=current_competition.numberOfRounds, previous_stock_data=previous_stock_data)
 
 @app.route('/round/<int:ID>/<round_number>')
 def round(ID, round_number):
     if session.get('logged_in') != True:
             return redirect("/login")
-    stock_data_round = get_stock_data_for_round(round_number, ID)
-    latest_competition = Competition.query.order_by(desc(Competition.id)).first()
-    if latest_competition:
-            ID = latest_competition.id
+    
+    # Use the ID from the URL directly for competition-specific data
+    current_competition = Competition.query.get(ID) 
+    if not current_competition:
+        # Handle case where competition ID from URL is invalid
+        return redirect("/dashboard") # Or an appropriate error page
+
+    stock_data_round = get_stock_data_for_round(round_number, ID) # Use the correct ID here
+    
+    # Debugging: Print slides data before rendering
+    all_slides_data = slides(ID) # Use the correct ID here
+    print(f"All slides data: {all_slides_data}")
+    print(f"Current round: {round_number}")
+    if round_number in all_slides_data:
+        print(f"Slides for current round ({round_number}): {all_slides_data[round_number]}")
     else:
-            ID = None
-    return render_template('newsScroll.html', slides=slides(ID)[round_number], rounds=slides(ID).keys(), current_round=round_number, stock_data=stock_data_round, ID =ID)
+        print(f"No slides found for current round ({round_number})")
+
+    previous_stock_data = get_stock_data_for_previous_round(round_number, ID)
+
+    return render_template('newsScroll.html', slides=all_slides_data, rounds=all_slides_data.keys(), current_round=round_number, stock_data=stock_data_round, ID =ID, total_rounds=current_competition.numberOfRounds, previous_stock_data=previous_stock_data)
 
 def get_stock_data_for_round(round_number,ID):
-    stock_data_round = {stock: values[:int(round_number)] for stock, values in stock_data(ID).items()}
-    return stock_data_round
+    all_stock_data = stock_data(ID)
+    current_round_prices = {}
+    for stock, values in all_stock_data.items():
+        # Ensure round_number is within the bounds of available data
+        if int(round_number) > 0 and int(round_number) <= len(values):
+            current_round_prices[stock] = values[int(round_number) - 1]
+    return current_round_prices
+
+def get_stock_data_for_previous_round(round_number, ID):
+    if int(round_number) > 1:
+        previous_round_number = int(round_number) - 1
+        return {stock: values[previous_round_number - 1] for stock, values in stock_data(ID).items()}
+    return {}
 
 # Add new routes for participant login and dashboard
 @app.route("/participant-login", methods=["GET", "POST"])

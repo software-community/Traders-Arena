@@ -77,6 +77,13 @@ function addInputField(button) {
       name: stockNameInput.value,
       price: priceInput.value,
     });
+    
+    // Disable the inputs after adding
+    stockNameInput.disabled = true;
+    priceInput.disabled = true;
+  } else {
+    alert('Please fill in both stock name and price before adding');
+    return;
   }
 
   var delButton = createButton("Remove", function () {
@@ -109,14 +116,44 @@ function removeStock(stockName) {
     `.stock-item[stock="${stockName}"]`
   );
   stockItems.forEach((item) => item.remove());
+  
+  // Remove from stockEntries array
+  stockEntries = stockEntries.filter(entry => entry.name !== stockName);
 }
 
 // Closing Price Fields generation: (takes stock names automaitcally from filled user entries)
 function displayStockNames() {
+  const roundsValue = document.getElementById("rounds").value;
+  if (!roundsValue || roundsValue <= 0) {
+    alert('Please enter a valid number of rounds');
+    return;
+  }
+  
+  // Collect current stock entries from the form
+  const stockNameInputs = document.querySelectorAll('input[name="stockName"]');
+  const priceInputs = document.querySelectorAll('input[name="price"]');
+  
+  // Clear and repopulate stockEntries array
+  stockEntries = [];
+  stockNameInputs.forEach((input, index) => {
+    if (input.value.trim() && priceInputs[index] && priceInputs[index].value.trim()) {
+      stockEntries.push({
+        name: input.value.trim(),
+        price: priceInputs[index].value.trim(),
+      });
+    }
+  });
+  
+  if (stockEntries.length === 0) {
+    alert('Please add at least one stock before entering rounds');
+    return;
+  }
+  
   document.getElementById("closingPrices").style.display = "block";
   var displayContainer = document.getElementById("stockDisplayContainer");
-  var x = document.getElementById("rounds").value;
+  var x = parseInt(roundsValue);
   displayContainer.innerHTML = ""; // Clear previous entries
+  
   for (var j = 1; j <= x; j++) {
     var roundEntry = document.createElement("div");
     roundEntry.className = "mb-4";
@@ -125,6 +162,7 @@ function displayStockNames() {
       j.toString() +
       "</label>";
     displayContainer.appendChild(roundEntry);
+    
     for (var i = 0; i < stockEntries.length; i++) {
       var row = document.createElement("div");
       row.className = "stock-item flex items-center gap-4 mb-2";
@@ -145,6 +183,7 @@ function displayStockNames() {
       priceInput.className = "pl-10 py-2 rounded-lg w-full";
       priceInput.name = "round-" + stockEntries[i].name;
       priceInput.placeholder = "Price";
+      priceInput.required = true;
 
       priceInputContainer.appendChild(rupeeSymbol);
       priceInputContainer.appendChild(priceInput);

@@ -6,6 +6,7 @@ import string
 from datetime import datetime, timedelta, timezone
 import time
 import base64
+import traceback
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
 from flask_pymongo import PyMongo
@@ -16,13 +17,35 @@ import json
 from pymongo.errors import PyMongoError
 
 app = Flask(__name__)
-app.config["MONGODB_URI"] = os.getenv("MONGODB_URI")
-app.config['SESSION_TYPE'] = 'mongodb'
+
+# Load and validate MongoDB URI
+mongodb_uri = os.getenv("MONGODB_URI")
+if not mongodb_uri:
+    print("ERROR: MONGODB_URI not found in environment variables")
+    print("Available environment variables:")
+    for key in sorted(os.environ.keys()):
+        if 'MONGO' in key.upper() or 'DB' in key.upper():
+            print(f"  {key}: {os.environ[key][:30]}...")
+    raise ValueError("MONGODB_URI is required")
+
+print(f"MongoDB URI loaded: {mongodb_uri[:50]}...")
+app.config["MONGO_URI"] = mongodb_uri
+app.config['SESSION_TYPE'] = 'filesystem'  # Changed from 'mongodb' to 'filesystem' to avoid session store issues
 app.secret_key = os.getenv("SECRET_KEY", "traders_arena_secret_key")
-mongo = PyMongo(app)
+
+# Initialize MongoDB
+try:
+    mongo = PyMongo(app)
+    print("PyMongo initialized successfully")
+except Exception as e:
+    print(f"Error initializing PyMongo: {e}")
+    raise
+
 server_name = os.getenv("SERVER_NAME")
 if server_name:
     app.config["SERVER_NAME"] = server_name
+    
+# Initialize Flask-Session after MongoDB
 Session(app)
 
 # MongoDB Collection Schemas and Validators
@@ -74,65 +97,86 @@ def get_team_validator():
 
 # Initialize MongoDB collections with schemas and indexes
 def init_mongodb():
+    with app.app_context():
+        try:
+            # Test the connection first
+            if mongo.db is None:
+                raise Exception("MongoDB database connection is None - check your MONGO_URI")
+            
+            # Test basic connectivity
+            result = mongo.db.command('ping')
+            print(f"MongoDB ping successful: {result}")
+            print(f"Connected to database: {mongo.db.name}")
+            
+            # Create collections with validation
+            db = mongo.db
+
+            # Competitions
+            if "competitions" not in db.list_collection_names():
+                db.create_collection("competitions")
+            db.command("collMod", "competitions", validator=get_competition_validator())
+            db.competitions.create_index([("competitionName", ASCENDING)], unique=True)
+            db.competitions.create_index([("timeOfCreation", DESCENDING)])
+
+            # Stocks
+            if "stocks" not in db.list_collection_names():
+                db.create_collection("stocks")
+            db.command("collMod", "stocks", validator=get_stock_validator())
+            db.stocks.create_index([("competition_id", ASCENDING), ("name", ASCENDING)], unique=True)
+
+            # Teams
+            if "teams" not in db.list_collection_names():
+                db.create_collection("teams")
+            db.command("collMod", "teams", validator=get_team_validator())
+            db.teams.create_index([("participant_id", ASCENDING)], unique=True)
+            db.teams.create_index([("competition_id", ASCENDING), ("teamName", ASCENDING)], unique=True)
+
+            # Rounds
+            if "rounds" not in db.list_collection_names():
+                db.create_collection("rounds")
+            db.rounds.create_index([
+                ("competition_id", ASCENDING),
+                ("stock_id", ASCENDING),
+                ("round_number", ASCENDING)
+            ])
+
+            # Transactions
+            if "transactions" not in db.list_collection_names():
+                db.create_collection("transactions")
+            db.transactions.create_index([("competition_id", ASCENDING), ("timeOfTransaction", DESCENDING)])
+            db.transactions.create_index([("buyer_team", ASCENDING)])
+            db.transactions.create_index([("seller_team", ASCENDING)])
+
+            # Stock Purchases
+            if "stock_purchases" not in db.list_collection_names():
+                db.create_collection("stock_purchases")
+            db.stock_purchases.create_index([("competition_id", ASCENDING)])
+            db.stock_purchases.create_index([("team", ASCENDING)])
+            db.stock_purchases.create_index([("timeIssued", DESCENDING)])
+
+            # Stock News
+            if "stock_news" not in db.list_collection_names():
+                db.create_collection("stock_news")
+            db.stock_news.create_index([("competition_id", ASCENDING), ("roundNumber", ASCENDING)])
+
+            print("MongoDB initialized successfully with schemas and indexes")
+        except PyMongoError as e:
+            print(f"Error initializing MongoDB: {e}")
+            raise
+
+# Initialize MongoDB on startup - wrap in a function to handle errors gracefully
+def initialize_app():
     try:
-        # Create collections with validation
-        db = mongo.db
+        init_mongodb()
+        print("Application initialized successfully")
+    except Exception as e:
+        print(f"Warning: Could not initialize MongoDB collections: {e}")
+        print("Application will continue to run, but database features may not work properly")
+        print("Please check your MONGODB_URI and internet connectivity")
 
-        # Competitions
-        if "competitions" not in db.list_collection_names():
-            db.create_collection("competitions")
-        db.command("collMod", "competitions", validator=get_competition_validator())
-        db.competitions.create_index([("competitionName", ASCENDING)], unique=True)
-        db.competitions.create_index([("timeOfCreation", DESCENDING)])
-
-        # Stocks
-        if "stocks" not in db.list_collection_names():
-            db.create_collection("stocks")
-        db.command("collMod", "stocks", validator=get_stock_validator())
-        db.stocks.create_index([("competition_id", ASCENDING), ("name", ASCENDING)], unique=True)
-
-        # Teams
-        if "teams" not in db.list_collection_names():
-            db.create_collection("teams")
-        db.command("collMod", "teams", validator=get_team_validator())
-        db.teams.create_index([("participant_id", ASCENDING)], unique=True)
-        db.teams.create_index([("competition_id", ASCENDING), ("teamName", ASCENDING)], unique=True)
-
-        # Rounds
-        if "rounds" not in db.list_collection_names():
-            db.create_collection("rounds")
-        db.rounds.create_index([
-            ("competition_id", ASCENDING),
-            ("stock_id", ASCENDING),
-            ("round_number", ASCENDING)
-        ])
-
-        # Transactions
-        if "transactions" not in db.list_collection_names():
-            db.create_collection("transactions")
-        db.transactions.create_index([("competition_id", ASCENDING), ("timeOfTransaction", DESCENDING)])
-        db.transactions.create_index([("buyer_team", ASCENDING)])
-        db.transactions.create_index([("seller_team", ASCENDING)])
-
-        # Stock Purchases
-        if "stock_purchases" not in db.list_collection_names():
-            db.create_collection("stock_purchases")
-        db.stock_purchases.create_index([("competition_id", ASCENDING)])
-        db.stock_purchases.create_index([("team", ASCENDING)])
-        db.stock_purchases.create_index([("timeIssued", DESCENDING)])
-
-        # Stock News
-        if "stock_news" not in db.list_collection_names():
-            db.create_collection("stock_news")
-        db.stock_news.create_index([("competition_id", ASCENDING), ("roundNumber", ASCENDING)])
-
-        print("MongoDB initialized successfully with schemas and indexes")
-    except PyMongoError as e:
-        print(f"Error initializing MongoDB: {e}")
-        raise
-
-# Initialize MongoDB on startup
-init_mongodb()
+# Call initialization only when not in debug/reloader mode
+if not os.environ.get('WERKZEUG_RUN_MAIN'):
+    initialize_app()
 
 def generate_team_id():
     """Generate a random 6-character alphanumeric ID"""
@@ -1055,7 +1099,6 @@ def results(competition_id):
     except Exception as e:
         print(f"Error in results: {e}")
         print(f"Error type: {type(e)}")
-        import traceback
         traceback.print_exc()
         flash(f"An error occurred: {str(e)}", "error")
         return render_template(
@@ -1223,7 +1266,6 @@ def transactions(competition_id):
     except Exception as e:
         print(f"Error in trading page: {e}")
         print(f"Error type: {type(e)}")
-        import traceback
         traceback.print_exc()
         flash(f"An error occurred: {str(e)}", "error")
         # Render the template with error instead of redirecting
@@ -1357,7 +1399,6 @@ def stocksIssue(competition_id):
             except Exception as e:
                 print(f"Error recording stock purchase: {e}")
                 print(f"Error type: {type(e)}")
-                import traceback
                 traceback.print_exc()
 
             # Update portfolio trend
@@ -1398,7 +1439,6 @@ def stocksIssue(competition_id):
     except Exception as e:
         print(f"Error in initial buying: {e}")
         print(f"Error type: {type(e)}")
-        import traceback
         traceback.print_exc()
         flash(f"An error occurred: {str(e)}", "error")
         return render_template(
@@ -1527,7 +1567,6 @@ def complete_competition():
     except Exception as e:
         print(f"Error completing competition: {e}")
         print(f"Error type: {type(e)}")
-        import traceback
         traceback.print_exc()
         flash(f"Failed to complete competition: {str(e)}", "error")
         return redirect("/dashboard")
@@ -1676,7 +1715,6 @@ def next_round():
     except Exception as e:
         print(f"Error advancing round: {e}")
         print(f"Error type: {type(e)}")
-        import traceback
         traceback.print_exc()
         flash(f"Failed to advance to next round: {str(e)}", "error")
         return redirect("/dashboard")

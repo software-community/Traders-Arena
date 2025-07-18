@@ -20,7 +20,7 @@ import json
 from pymongo.errors import PyMongoError
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = os.getenv("MONGODB_URI")
+app.config["MONGODB_URI"] = os.getenv("MONGODB_URI")
 app.config['SESSION_TYPE'] = 'mongodb'
 app.secret_key = os.getenv("SECRET_KEY", "traders_arena_secret_key")
 mongo = PyMongo(app)

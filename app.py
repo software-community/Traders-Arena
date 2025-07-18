@@ -1,7 +1,3 @@
-"""
-Entrypoint for our management portal
-Author: Team SoftCom
-"""
 from dotenv import load_dotenv
 load_dotenv()
 import os
